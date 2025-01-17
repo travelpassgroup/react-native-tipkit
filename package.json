@@ -196,5 +196,8 @@
     "languages": "js",
     "type": "library",
     "version": "0.45.5"
+  },
+  "dependencies": {
+    "react-native-reanimated": "^3.16.7"
   }
 }
