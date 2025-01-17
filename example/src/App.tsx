@@ -1,7 +1,7 @@
 import { Text, View, StyleSheet } from 'react-native';
 import { multiply } from 'react-native-tipkit';
 
-const result = multiply(3, 7);
+const result = multiply({ n1: 3, n2: 7 });
 
 export default function App() {
   return (
