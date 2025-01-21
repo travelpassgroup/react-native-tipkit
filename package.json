@@ -80,6 +80,8 @@
     "react": "18.3.1",
     "react-native": "0.76.6",
     "react-native-builder-bob": "^0.32.0",
+    "react-native-reanimated": "^3.16.7",
+    "react-native-svg": "^15.11.1",
     "release-it": "^17.10.0",
     "typescript": "^5.2.2"
   },
@@ -88,7 +90,9 @@
   },
   "peerDependencies": {
     "react": "*",
-    "react-native": "*"
+    "react-native": "*",
+    "react-native-reanimated": "*",
+    "react-native-svg": "*"
   },
   "workspaces": [
     "example"
@@ -196,8 +200,5 @@
     "languages": "js",
     "type": "library",
     "version": "0.45.5"
-  },
-  "dependencies": {
-    "react-native-reanimated": "^3.16.7"
   }
 }
