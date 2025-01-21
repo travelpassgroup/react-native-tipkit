@@ -8,6 +8,11 @@ import React, {
 } from 'react';
 import BaseTipKit, { type BaseTipKitProps } from '../components/BaseTipKit';
 import { Button, StyleSheet, View, type ButtonProps } from 'react-native';
+import Animated, {
+  LinearTransition,
+  ZoomInEasyDown,
+  ZoomOutEasyDown,
+} from 'react-native-reanimated';
 
 export type TipKitPopOverArrowDirection =
   | 'top-start'
@@ -70,7 +75,11 @@ const TipKitPopOverView: React.FC<TipKitPopOverViewProps> = ({
 
   return (
     <Fragment>
-      <View ref={buttonRef} style={styles.buttonContainer}>
+      <Animated.View
+        ref={buttonRef}
+        layout={LinearTransition}
+        style={styles.buttonContainer}
+      >
         {popoverButton ? (
           React.cloneElement(popoverButton, {
             onPress: () => {
@@ -86,16 +95,21 @@ const TipKitPopOverView: React.FC<TipKitPopOverViewProps> = ({
             {...popoverButtonProps}
           />
         )}
-      </View>
+      </Animated.View>
       {visible && (
-        <View style={[styles.popoverContainer, popoverStyle]}>
+        <Animated.View
+          layout={LinearTransition}
+          style={[styles.popoverContainer, popoverStyle]}
+        >
           <BaseTipKit
             visible={true}
             onDismiss={onDismiss}
             popoverButtonArrowDirection={popoverButtonArrowDirection}
+            enteringAnimation={ZoomInEasyDown}
+            exitingAnimation={ZoomOutEasyDown}
             {...rest}
           />
-        </View>
+        </Animated.View>
       )}
     </Fragment>
   );

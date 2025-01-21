@@ -1,6 +1,9 @@
-import { View, StyleSheet, Pressable, Text } from 'react-native';
+import { StyleSheet, Pressable } from 'react-native';
 import { TipKitInlineView, TipKitPopOverView } from 'react-native-tipkit';
 import CloseIcon from './CloseIcon';
+import Animated, { LinearTransition } from 'react-native-reanimated';
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export default function App() {
   const onActionButtonPress = () => {
@@ -8,10 +11,11 @@ export default function App() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>TipKit Example</Text>
+    <Animated.View layout={LinearTransition} style={styles.container}>
+      <Animated.Text layout={LinearTransition} style={styles.title}>
+        TipKit Example
+      </Animated.Text>
       <TipKitInlineView
-        visible={true}
         tipContainer={styles.inline}
         title="Set favorites"
         description="Tap and hold a color to add it to your favorites"
@@ -53,14 +57,21 @@ export default function App() {
         popoverButtonArrowDirection="bottom-end"
         // Popover Button Props
         popoverButton={
-          <Pressable style={styles.customPopoverButton} onPress={() => {}}>
-            <Text style={styles.customPopoverButtonText}>
+          <AnimatedPressable
+            layout={LinearTransition}
+            style={styles.customPopoverButton}
+            onPress={() => {}}
+          >
+            <Animated.Text
+              layout={LinearTransition}
+              style={styles.customPopoverButtonText}
+            >
               Custom Popover button
-            </Text>
-          </Pressable>
+            </Animated.Text>
+          </AnimatedPressable>
         }
       />
-    </View>
+    </Animated.View>
   );
 }
 

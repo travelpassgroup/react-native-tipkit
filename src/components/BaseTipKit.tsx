@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import CloseIcon from './CloseIcon';
 import type { TipKitPopOverArrowDirection } from '../TipKitPopOverView/TipKitPopOverView';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 export interface BaseTipKitProps {
   // General Logic Props
@@ -33,6 +34,8 @@ export interface BaseTipKitProps {
 
   // Styling Props
   tipContainer?: ViewStyle;
+  enteringAnimation?: any;
+  exitingAnimation?: any;
 }
 
 const BaseTipKit: FC<BaseTipKitProps> = ({
@@ -48,6 +51,8 @@ const BaseTipKit: FC<BaseTipKitProps> = ({
   actionButtonOnPress,
   tipContainer,
   popoverButtonArrowDirection,
+  enteringAnimation = FadeIn,
+  exitingAnimation = FadeOut,
 }) => {
   const onXPress = () => {
     onDismiss?.();
@@ -84,7 +89,11 @@ const BaseTipKit: FC<BaseTipKitProps> = ({
 
   return (
     visible && (
-      <View>
+      <Animated.View
+        key={`tip-${title}`}
+        entering={enteringAnimation}
+        exiting={exitingAnimation}
+      >
         {popoverButtonArrowDirection && (
           <View style={[styles.arrow, { ...arrowStyle }]} />
         )}
@@ -110,7 +119,7 @@ const BaseTipKit: FC<BaseTipKitProps> = ({
             )}
           </View>
         </View>
-      </View>
+      </Animated.View>
     )
   );
 };
