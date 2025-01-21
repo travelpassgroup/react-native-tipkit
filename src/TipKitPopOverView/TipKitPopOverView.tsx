@@ -32,13 +32,11 @@ const TipKitPopOverView: React.FC<
   });
 
   const popoverStyle = useMemo(() => {
-    const { y, x, height } = buttonPosition;
+    const { y, height } = buttonPosition;
     const isTop = y < screenHeight / 2;
-    console.log(y, x);
 
     return {
       top: y + (isTop ? -height * 2 : height * 1.5),
-      left: x,
     };
   }, [buttonPosition, screenHeight]);
 
