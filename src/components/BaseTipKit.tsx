@@ -1,4 +1,4 @@
-import React, { useMemo, type FC } from 'react';
+import React, { useCallback, useMemo, type FC } from 'react';
 import {
   Pressable,
   StyleSheet,
@@ -54,9 +54,9 @@ const BaseTipKit: FC<BaseTipKitProps> = ({
   enteringAnimation = FadeIn,
   exitingAnimation = FadeOut,
 }) => {
-  const onXPress = () => {
+  const onXPress = useCallback(() => {
     onDismiss?.();
-  };
+  }, [onDismiss]);
 
   const arrowStyle = useMemo(() => {
     const isTop = popoverButtonArrowDirection?.includes('top');

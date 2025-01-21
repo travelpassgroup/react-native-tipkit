@@ -1,5 +1,6 @@
 import React, {
   Fragment,
+  useCallback,
   useMemo,
   useRef,
   useState,
@@ -47,11 +48,11 @@ const TipKitPopOverView: React.FC<TipKitPopOverViewProps> = ({
     height: 0,
   });
 
-  const measureButtonPosition = () => {
+  const measureButtonPosition = useCallback(() => {
     buttonRef.current?.measure((_fx, _fy, width, height, px, py) => {
       setButtonPosition({ x: px, y: py, width, height });
     });
-  };
+  }, []);
 
   const popoverStyle = useMemo(() => {
     const { y, x, height } = buttonPosition;
@@ -63,15 +64,15 @@ const TipKitPopOverView: React.FC<TipKitPopOverViewProps> = ({
     };
   }, [buttonPosition, popoverButtonArrowDirection]);
 
-  const onDismiss = () => {
+  const onDismiss = useCallback(() => {
     setVisible(false);
-  };
+  }, []);
 
-  const handlePopoverButtonPress = () => {
+  const handlePopoverButtonPress = useCallback(() => {
     measureButtonPosition();
     popoverButtonOnPress?.();
     setVisible(true);
-  };
+  }, [popoverButtonOnPress, measureButtonPosition]);
 
   return (
     <Fragment>

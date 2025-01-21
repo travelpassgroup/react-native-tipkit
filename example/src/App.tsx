@@ -2,13 +2,14 @@ import { StyleSheet, Pressable } from 'react-native';
 import { TipKitInlineView, TipKitPopOverView } from 'react-native-tipkit';
 import CloseIcon from './CloseIcon';
 import Animated, { LinearTransition } from 'react-native-reanimated';
+import { useCallback } from 'react';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export default function App() {
-  const onActionButtonPress = () => {
+  const onActionButtonPress = useCallback(() => {
     console.log('Action button pressed');
-  };
+  }, []);
 
   return (
     <Animated.View layout={LinearTransition} style={styles.container}>
