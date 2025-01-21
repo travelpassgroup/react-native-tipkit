@@ -24,6 +24,7 @@ export default function App() {
         tipContainer={styles.tipContainer}
         leftIcon={<CloseIcon height={40} width={40} />}
         actionButtonOnPress={onActionButtonPress}
+        actionButtonTitle="Learn more"
         // Popover Button Props
         popoverButtonProps={{ title: 'Show Popover Top' }}
         popoverButtonArrowDirection="top"
