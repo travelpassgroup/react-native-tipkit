@@ -1,102 +1,93 @@
 import React, { useCallback, useMemo, type FC } from 'react';
 import {
+  Dimensions,
   Pressable,
   StyleSheet,
   Text,
   View,
-  type FlexAlignType,
+  type LayoutRectangle,
   type TextStyle,
   type ViewStyle,
 } from 'react-native';
 import CloseIcon from './CloseIcon';
-import type { TipKitPopOverArrowDirection } from '../TipKitPopOverView/TipKitPopOverView';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 export interface BaseTipKitProps {
+  type?: 'inline' | 'popover';
   // General Logic Props
   visible?: boolean;
   onDismiss?: () => void;
-
   // Content Props
   title?: string;
   titleStyle?: TextStyle;
   description?: string;
   descriptionStyle?: TextStyle;
-  popoverButtonArrowDirection?: TipKitPopOverArrowDirection;
-
   // Icon Props
-  leftIcon?: React.ReactNode;
-
-  // Button Props
+  icon?: React.ReactNode;
+  // Action Button Props
   actionButtonTitle?: string;
   actionButtonStyle?: TextStyle;
   actionButtonOnPress?: () => void;
-
   // Styling Props
   tipContainer?: ViewStyle;
+  buttonPosition?: LayoutRectangle;
+  // Animation Props
   enteringAnimation?: any;
   exitingAnimation?: any;
 }
 
 const BaseTipKit: FC<BaseTipKitProps> = ({
+  type,
   visible,
   onDismiss,
   title,
   titleStyle,
   description,
   descriptionStyle,
-  leftIcon,
+  icon: leftIcon,
   actionButtonTitle,
   actionButtonStyle,
   actionButtonOnPress,
   tipContainer,
-  popoverButtonArrowDirection,
+  buttonPosition,
   enteringAnimation = FadeIn,
   exitingAnimation = FadeOut,
 }) => {
+  const { height: screenHeight } = Dimensions.get('screen');
   const onXPress = useCallback(() => {
     onDismiss?.();
   }, [onDismiss]);
 
   const arrowStyle = useMemo(() => {
-    const isTop = popoverButtonArrowDirection?.includes('top');
-    const isStart = popoverButtonArrowDirection?.includes('start');
-    const alignSelf = (() => {
-      switch (popoverButtonArrowDirection) {
-        case 'top-start':
-        case 'bottom-start':
-          return 'flex-start';
-        case 'top-end':
-        case 'bottom-end':
-          return 'flex-end';
-        case 'top':
-        case 'bottom':
-          return 'center';
-        default:
-          return 'center';
-      }
-    })();
+    if (!buttonPosition) {
+      return {};
+    }
+    const { y, x } = buttonPosition;
+    const isTop = y < screenHeight / 2;
 
     return {
-      top: isTop ? undefined : -7,
+      top: isTop ? undefined : -8,
+      left: x,
       bottom: isTop ? -7 : undefined,
-      left: isStart ? 6 : undefined,
-      right: isStart ? undefined : 6,
-      alignSelf: alignSelf as FlexAlignType,
       backgroundColor: tipContainer?.backgroundColor,
     };
-  }, [popoverButtonArrowDirection, tipContainer?.backgroundColor]);
+  }, [tipContainer?.backgroundColor, buttonPosition, screenHeight]);
 
   return (
     visible && (
       <Animated.View
         key={`tip-${title}`}
-        entering={enteringAnimation}
+        entering={enteringAnimation
+          .delay(500)
+          .springify()
+          .damping(80)
+          .stiffness(200)}
         exiting={exitingAnimation}
       >
-        {popoverButtonArrowDirection && (
+        {type === 'popover' && (
           <View style={[styles.arrow, { ...arrowStyle }]} />
         )}
+
         <View style={[styles.container, tipContainer]}>
           {leftIcon && leftIcon}
           <View style={[styles.wrapper]}>
@@ -110,7 +101,7 @@ const BaseTipKit: FC<BaseTipKitProps> = ({
               {description}
             </Text>
 
-            {actionButtonOnPress && actionButtonTitle && (
+            {actionButtonOnPress && !!actionButtonTitle && (
               <Pressable onPress={actionButtonOnPress}>
                 <Text style={[styles.actionButton, actionButtonStyle]}>
                   {actionButtonTitle}
@@ -160,12 +151,10 @@ const styles = StyleSheet.create({
     color: '#007AFF',
   },
   arrow: {
-    height: 20,
-    width: 20,
+    width: 26,
+    height: 26,
     position: 'absolute',
-    top: -7,
-    borderBottomLeftRadius: 4,
-    borderTopRightRadius: 4,
+    borderRadius: 4,
     transform: [{ rotate: '45deg' }],
   },
 });

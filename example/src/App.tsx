@@ -1,10 +1,8 @@
-import { StyleSheet, Pressable } from 'react-native';
+import { StyleSheet, Pressable, Text } from 'react-native';
 import { TipKitInlineView, TipKitPopOverView } from 'react-native-tipkit';
-import CloseIcon from './CloseIcon';
+import DonutIcon from './DonutIcon';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { useCallback } from 'react';
-
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export default function App() {
   const onActionButtonPress = useCallback(() => {
@@ -13,13 +11,29 @@ export default function App() {
 
   return (
     <Animated.View layout={LinearTransition} style={styles.container}>
+      <TipKitPopOverView
+        title="Add New Color"
+        description="Tap here to add a new color to the list"
+        tipContainer={styles.tipContainer}
+        icon={<DonutIcon height={40} width={40} />}
+        actionButtonOnPress={onActionButtonPress}
+      >
+        <Pressable
+          style={styles.topButton}
+          onPress={() => console.log('Cool feature!')}
+        >
+          <Text style={styles.buttonText}>Tip you</Text>
+        </Pressable>
+      </TipKitPopOverView>
+
       <Animated.Text layout={LinearTransition} style={styles.title}>
         TipKit Example
       </Animated.Text>
+
       <TipKitInlineView
-        tipContainer={styles.inline}
         title="Set favorites"
         description="Tap and hold a color to add it to your favorites"
+        tipContainer={styles.inline}
       />
 
       <TipKitPopOverView
@@ -27,51 +41,17 @@ export default function App() {
         title="Add New Color"
         description="Tap here to add a new color to the list"
         tipContainer={styles.tipContainer}
-        leftIcon={<CloseIcon height={40} width={40} />}
+        icon={<DonutIcon height={40} width={40} fill={'#66b2b2'} />}
         actionButtonOnPress={onActionButtonPress}
         actionButtonTitle="Learn more"
-        // Popover Button Props
-        popoverButtonProps={{ title: 'Show Popover Top' }}
-        popoverButtonArrowDirection="top"
-      />
-
-      <TipKitPopOverView
-        // Tip Props
-        title="Add New Color"
-        description="Tap here to add a new color to the list"
-        tipContainer={styles.tipContainer}
-        leftIcon={<CloseIcon height={40} width={40} />}
-        actionButtonOnPress={onActionButtonPress}
-        // Popover Button Props
-        popoverButtonProps={{ title: 'Show Popover Bottom' }}
-        popoverButtonArrowDirection="bottom"
-      />
-
-      {/* TODO: Fix the positioning of the arrow when the button is smaller than 100% */}
-      <TipKitPopOverView
-        // Tip Props
-        title="Add New Color"
-        description="Tap here to add a new color to the list"
-        tipContainer={styles.tipContainer}
-        leftIcon={<CloseIcon height={40} width={40} />}
-        actionButtonOnPress={onActionButtonPress}
-        popoverButtonArrowDirection="bottom-end"
-        // Popover Button Props
-        popoverButton={
-          <AnimatedPressable
-            layout={LinearTransition}
-            style={styles.customPopoverButton}
-            onPress={() => {}}
-          >
-            <Animated.Text
-              layout={LinearTransition}
-              style={styles.customPopoverButtonText}
-            >
-              Custom Popover button
-            </Animated.Text>
-          </AnimatedPressable>
-        }
-      />
+      >
+        <Pressable
+          style={styles.bottomButton}
+          onPress={() => console.log('Cool feature!')}
+        >
+          <Text style={styles.buttonText}>Tip me</Text>
+        </Pressable>
+      </TipKitPopOverView>
     </Animated.View>
   );
 }
@@ -102,6 +82,24 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    color: '#333',
+  },
+  topButton: {
+    width: '30%',
+    backgroundColor: '#66D210',
+    padding: 12,
+    borderRadius: 8,
+  },
+  bottomButton: {
+    width: 100,
+    backgroundColor: '#66D210',
+    padding: 12,
+    borderRadius: 8,
+    alignSelf: 'flex-end',
+  },
+  buttonText: {
     fontWeight: 'bold',
     textAlign: 'center',
     color: '#333',

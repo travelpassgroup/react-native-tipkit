@@ -2,100 +2,61 @@ import React, {
   Fragment,
   useCallback,
   useMemo,
-  useRef,
   useState,
-  type JSXElementConstructor,
-  type ReactElement,
+  type PropsWithChildren,
 } from 'react';
 import BaseTipKit, { type BaseTipKitProps } from '../components/BaseTipKit';
-import { Button, StyleSheet, View, type ButtonProps } from 'react-native';
+import { Dimensions, StyleSheet, type LayoutRectangle } from 'react-native';
 import Animated, {
   LinearTransition,
   ZoomInEasyDown,
   ZoomOutEasyDown,
 } from 'react-native-reanimated';
 
-export type TipKitPopOverArrowDirection =
-  | 'top-start'
-  | 'top'
-  | 'top-end'
-  | 'bottom-start'
-  | 'bottom'
-  | 'bottom-end';
+interface TipKitPopOverViewProps
+  extends Omit<
+    BaseTipKitProps,
+    'type' | 'visible' | 'onDismiss' | 'buttonPosition'
+  > {}
 
-interface TipKitPopOverViewProps extends BaseTipKitProps {
-  popoverButtonArrowDirection?: TipKitPopOverArrowDirection;
-  popoverButton?: ReactElement<any, string | JSXElementConstructor<any>>;
-  popoverButtonOnPress?: () => void;
-  popoverButtonTitle?: string;
-  popoverButtonProps?: ButtonProps;
-}
-
-const TipKitPopOverView: React.FC<TipKitPopOverViewProps> = ({
-  popoverButton,
-  popoverButtonOnPress,
-  popoverButtonProps,
-  popoverButtonArrowDirection = 'bottom',
-  ...rest
-}) => {
-  const buttonRef = useRef<View>(null);
-
-  const [visible, setVisible] = useState(false);
-  const [buttonPosition, setButtonPosition] = useState({
+const TipKitPopOverView: React.FC<
+  PropsWithChildren<TipKitPopOverViewProps>
+> = ({ children, ...rest }) => {
+  const { height: screenHeight } = Dimensions.get('screen');
+  const [visible, setVisible] = useState(true);
+  const [buttonPosition, setButtonPosition] = useState<LayoutRectangle>({
     x: 0,
     y: 0,
     width: 0,
     height: 0,
   });
 
-  const measureButtonPosition = useCallback(() => {
-    buttonRef.current?.measure((_fx, _fy, width, height, px, py) => {
-      setButtonPosition({ x: px, y: py, width, height });
-    });
-  }, []);
-
   const popoverStyle = useMemo(() => {
     const { y, x, height } = buttonPosition;
-    const isTop = popoverButtonArrowDirection?.includes('top');
+    const isTop = y < screenHeight / 2;
+    console.log(y, x);
 
     return {
-      top: y + (isTop ? -height * 2.5 : height * 1.5),
+      top: y + (isTop ? -height * 2 : height * 1.5),
       left: x,
     };
-  }, [buttonPosition, popoverButtonArrowDirection]);
+  }, [buttonPosition, screenHeight]);
 
   const onDismiss = useCallback(() => {
     setVisible(false);
   }, []);
 
-  const handlePopoverButtonPress = useCallback(() => {
-    measureButtonPosition();
-    popoverButtonOnPress?.();
-    setVisible(true);
-  }, [popoverButtonOnPress, measureButtonPosition]);
-
   return (
     <Fragment>
       <Animated.View
-        ref={buttonRef}
         layout={LinearTransition}
         style={styles.buttonContainer}
+        onLayout={(event) => {
+          const { x, y, width, height } = event.nativeEvent.layout;
+          setButtonPosition({ x, y, width, height });
+        }}
       >
-        {popoverButton ? (
-          React.cloneElement(popoverButton, {
-            onPress: () => {
-              handlePopoverButtonPress();
-              popoverButton.props.onPress?.();
-            },
-          })
-        ) : (
-          <Button
-            onPress={handlePopoverButtonPress}
-            title={popoverButtonProps?.title || ''}
-            color="#158481"
-            {...popoverButtonProps}
-          />
-        )}
+        {children}
       </Animated.View>
       {visible && (
         <Animated.View
@@ -103,9 +64,10 @@ const TipKitPopOverView: React.FC<TipKitPopOverViewProps> = ({
           style={[styles.popoverContainer, popoverStyle]}
         >
           <BaseTipKit
+            type="popover"
             visible={true}
             onDismiss={onDismiss}
-            popoverButtonArrowDirection={popoverButtonArrowDirection}
+            buttonPosition={buttonPosition}
             enteringAnimation={ZoomInEasyDown}
             exitingAnimation={ZoomOutEasyDown}
             {...rest}

@@ -2,7 +2,11 @@ import React, { useCallback } from 'react';
 import BaseTipKit, { type BaseTipKitProps } from '../components/BaseTipKit';
 import { StretchInY, StretchOutY } from 'react-native-reanimated';
 
-interface TipKitInlineViewProps extends BaseTipKitProps {}
+interface TipKitInlineViewProps
+  extends Omit<
+    BaseTipKitProps,
+    'type' | 'visible' | 'onDismiss' | 'buttonPosition'
+  > {}
 
 const TipKitInlineView: React.FC<TipKitInlineViewProps> = ({ ...rest }) => {
   const [visible, setVisible] = React.useState(true);
@@ -13,11 +17,11 @@ const TipKitInlineView: React.FC<TipKitInlineViewProps> = ({ ...rest }) => {
 
   return (
     <BaseTipKit
-      popoverButtonArrowDirection={undefined}
-      enteringAnimation={StretchInY}
-      exitingAnimation={StretchOutY}
+      type="inline"
       visible={visible}
       onDismiss={onDismiss}
+      enteringAnimation={StretchInY}
+      exitingAnimation={StretchOutY}
       {...rest}
     />
   );
