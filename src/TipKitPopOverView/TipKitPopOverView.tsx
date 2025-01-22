@@ -1,6 +1,5 @@
 import React, {
   Fragment,
-  useCallback,
   useMemo,
   useState,
   type PropsWithChildren,
@@ -19,10 +18,11 @@ interface TipKitPopOverViewProps
     'type' | 'visible' | 'onDismiss' | 'buttonPosition'
   > {}
 
+const { height: screenHeight } = Dimensions.get('screen');
+
 const TipKitPopOverView: React.FC<
   PropsWithChildren<TipKitPopOverViewProps>
 > = ({ children, ...rest }) => {
-  const { height: screenHeight } = Dimensions.get('screen');
   const [visible, setVisible] = useState(true);
   const [buttonPosition, setButtonPosition] = useState<LayoutRectangle>({
     x: 0,
@@ -36,13 +36,13 @@ const TipKitPopOverView: React.FC<
     const isTop = y < screenHeight / 2;
 
     return {
-      top: y + (isTop ? -height * 2 : height * 1.5),
+      top: y + (isTop ? height * 1.5 : -height * 2),
     };
-  }, [buttonPosition, screenHeight]);
+  }, [buttonPosition]);
 
-  const onDismiss = useCallback(() => {
+  const onDismiss = () => {
     setVisible(false);
-  }, []);
+  };
 
   return (
     <Fragment>
@@ -77,13 +77,15 @@ const TipKitPopOverView: React.FC<
 };
 
 const styles = StyleSheet.create({
-  buttonContainer: {
-    zIndex: 9998,
-  },
   popoverContainer: {
     position: 'absolute',
+    alignSelf: 'center',
     zIndex: 9999,
     width: '100%',
+  },
+  buttonContainer: {
+    zIndex: 9998,
+    alignSelf: 'flex-start',
   },
 });
 

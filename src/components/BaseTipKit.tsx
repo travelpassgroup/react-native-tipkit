@@ -36,6 +36,8 @@ export interface BaseTipKitProps {
   exitingAnimation?: any;
 }
 
+const ARROW_WIDTH = 26;
+
 const BaseTipKit: FC<BaseTipKitProps> = ({
   type,
   visible,
@@ -44,7 +46,7 @@ const BaseTipKit: FC<BaseTipKitProps> = ({
   titleStyle,
   description,
   descriptionStyle,
-  icon: leftIcon,
+  icon,
   actionButtonTitle,
   actionButtonStyle,
   actionButtonOnPress,
@@ -62,13 +64,13 @@ const BaseTipKit: FC<BaseTipKitProps> = ({
     if (!buttonPosition) {
       return {};
     }
-    const { y, x } = buttonPosition;
+    const { y, x, width } = buttonPosition;
     const isTop = y < screenHeight / 2;
 
     return {
-      top: isTop ? undefined : -8,
-      left: x,
-      bottom: isTop ? -7 : undefined,
+      top: isTop ? -8 : undefined,
+      left: x + width / 2 - ARROW_WIDTH / 2,
+      bottom: isTop ? undefined : -7,
       backgroundColor: tipContainer?.backgroundColor,
     };
   }, [tipContainer?.backgroundColor, buttonPosition, screenHeight]);
@@ -80,7 +82,7 @@ const BaseTipKit: FC<BaseTipKitProps> = ({
         entering={enteringAnimation
           .delay(500)
           .springify()
-          .damping(80)
+          .damping(15)
           .stiffness(200)}
         exiting={exitingAnimation}
       >
@@ -89,7 +91,7 @@ const BaseTipKit: FC<BaseTipKitProps> = ({
         )}
 
         <View style={[styles.container, tipContainer]}>
-          {leftIcon && leftIcon}
+          {icon && icon}
           <View style={[styles.wrapper]}>
             <View style={styles.header}>
               <Text style={[styles.title, titleStyle]}>{title}</Text>
@@ -151,8 +153,8 @@ const styles = StyleSheet.create({
     color: '#007AFF',
   },
   arrow: {
-    width: 26,
-    height: 26,
+    width: ARROW_WIDTH,
+    height: ARROW_WIDTH,
     position: 'absolute',
     borderRadius: 4,
     transform: [{ rotate: '45deg' }],
