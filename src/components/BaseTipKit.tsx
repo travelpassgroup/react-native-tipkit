@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, type FC } from 'react';
+import React, { useMemo, type FC } from 'react';
 import {
   Dimensions,
   Pressable,
@@ -30,7 +30,7 @@ export interface BaseTipKitProps {
   actionButtonOnPress?: () => void;
   // Styling Props
   tipContainer?: ViewStyle;
-  buttonPosition?: LayoutMeasure;
+  targetPosition?: LayoutMeasure;
   // Animation Props
   enteringAnimation?: any;
   exitingAnimation?: any;
@@ -51,20 +51,20 @@ const BaseTipKit: FC<BaseTipKitProps> = ({
   actionButtonStyle,
   actionButtonOnPress,
   tipContainer,
-  buttonPosition,
+  targetPosition,
   enteringAnimation = FadeIn,
   exitingAnimation = FadeOut,
 }) => {
   const { height: screenHeight } = Dimensions.get('screen');
-  const onXPress = useCallback(() => {
+  const onXPress = () => {
     onDismiss?.();
-  }, [onDismiss]);
+  };
 
   const arrowStyle = useMemo(() => {
-    if (!buttonPosition) {
+    if (!targetPosition) {
       return {};
     }
-    const { x, width, pageY } = buttonPosition;
+    const { x, width, pageY } = targetPosition;
     const isTop = pageY < screenHeight / 2;
 
     return {
@@ -73,17 +73,13 @@ const BaseTipKit: FC<BaseTipKitProps> = ({
       bottom: isTop ? undefined : -7,
       backgroundColor: tipContainer?.backgroundColor,
     };
-  }, [tipContainer?.backgroundColor, buttonPosition, screenHeight]);
+  }, [tipContainer?.backgroundColor, targetPosition, screenHeight]);
 
   return (
     visible && (
       <Animated.View
         key={`tip-${title}`}
-        entering={enteringAnimation
-          .delay(500)
-          .springify()
-          .damping(15)
-          .stiffness(200)}
+        entering={enteringAnimation}
         exiting={exitingAnimation}
       >
         {type === 'popover' && (

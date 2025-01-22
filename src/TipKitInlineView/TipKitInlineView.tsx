@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import BaseTipKit, { type BaseTipKitProps } from '../components/BaseTipKit';
 import { StretchInY, StretchOutY } from 'react-native-reanimated';
 
@@ -11,9 +11,9 @@ interface TipKitInlineViewProps
 const TipKitInlineView: React.FC<TipKitInlineViewProps> = ({ ...rest }) => {
   const [visible, setVisible] = React.useState(true);
 
-  const onDismiss = useCallback(() => {
+  const onDismiss = () => {
     setVisible(false);
-  }, []);
+  };
 
   return (
     <BaseTipKit

@@ -1,15 +1,21 @@
 import React, {
   Fragment,
+  useCallback,
   useMemo,
   useState,
   type PropsWithChildren,
 } from 'react';
 import BaseTipKit, { type BaseTipKitProps } from '../components/BaseTipKit';
-import { Dimensions, StyleSheet, type LayoutRectangle } from 'react-native';
+import {
+  Dimensions,
+  StyleSheet,
+  type LayoutChangeEvent,
+  type LayoutRectangle,
+} from 'react-native';
 import Animated, {
   LinearTransition,
-  ZoomInEasyDown,
-  ZoomOutEasyDown,
+  ZoomIn,
+  ZoomOut,
 } from 'react-native-reanimated';
 
 export interface LayoutMeasure extends LayoutRectangle {
@@ -29,7 +35,7 @@ const TipKitPopOverView: React.FC<
   PropsWithChildren<TipKitPopOverViewProps>
 > = ({ children, ...rest }) => {
   const [visible, setVisible] = useState(true);
-  const [buttonPosition, setButtonPosition] = useState<LayoutMeasure>({
+  const [targetPosition, setTargetPosition] = useState<LayoutMeasure>({
     x: 0,
     y: 0,
     width: 0,
@@ -39,28 +45,30 @@ const TipKitPopOverView: React.FC<
   });
 
   const popoverStyle = useMemo(() => {
-    const { y, height, pageY } = buttonPosition;
+    const { y, height, pageY } = targetPosition;
     const isTop = pageY < screenHeight / 2;
 
     return {
       top: y + (isTop ? height * 1.5 : -height * 2.6),
     };
-  }, [buttonPosition]);
+  }, [targetPosition]);
 
   const onDismiss = () => {
     setVisible(false);
   };
+
+  const handleOnLayout = useCallback((event: LayoutChangeEvent) => {
+    event.target.measure((x, y, width, height, pageX, pageY) => {
+      setTargetPosition({ x, y, width, height, pageX, pageY });
+    });
+  }, []);
 
   return (
     <Fragment>
       <Animated.View
         layout={LinearTransition}
         style={styles.buttonContainer}
-        onLayout={(event) => {
-          event.target.measure((x, y, width, height, pageX, pageY) => {
-            setButtonPosition({ x, y, width, height, pageX, pageY });
-          });
-        }}
+        onLayout={handleOnLayout}
       >
         {children}
       </Animated.View>
@@ -73,9 +81,12 @@ const TipKitPopOverView: React.FC<
             type="popover"
             visible={true}
             onDismiss={onDismiss}
-            buttonPosition={buttonPosition}
-            enteringAnimation={ZoomInEasyDown}
-            exitingAnimation={ZoomOutEasyDown}
+            targetPosition={targetPosition}
+            enteringAnimation={ZoomIn.delay(500)
+              .springify()
+              .damping(15)
+              .stiffness(200)}
+            exitingAnimation={ZoomOut}
             {...rest}
           />
         </Animated.View>

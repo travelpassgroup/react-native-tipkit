@@ -111,5 +111,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     width: '100%',
     alignSelf: 'center',
+    position: 'absolute',
+    bottom: 24,
   },
 });
