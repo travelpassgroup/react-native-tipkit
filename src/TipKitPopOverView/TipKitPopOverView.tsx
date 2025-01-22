@@ -12,6 +12,11 @@ import Animated, {
   ZoomOutEasyDown,
 } from 'react-native-reanimated';
 
+export interface LayoutMeasure extends LayoutRectangle {
+  pageX: number;
+  pageY: number;
+}
+
 interface TipKitPopOverViewProps
   extends Omit<
     BaseTipKitProps,
@@ -24,19 +29,21 @@ const TipKitPopOverView: React.FC<
   PropsWithChildren<TipKitPopOverViewProps>
 > = ({ children, ...rest }) => {
   const [visible, setVisible] = useState(true);
-  const [buttonPosition, setButtonPosition] = useState<LayoutRectangle>({
+  const [buttonPosition, setButtonPosition] = useState<LayoutMeasure>({
     x: 0,
     y: 0,
     width: 0,
     height: 0,
+    pageX: 0,
+    pageY: 0,
   });
 
   const popoverStyle = useMemo(() => {
-    const { y, height } = buttonPosition;
-    const isTop = y < screenHeight / 2;
+    const { y, height, pageY } = buttonPosition;
+    const isTop = pageY < screenHeight / 2;
 
     return {
-      top: y + (isTop ? height * 1.5 : -height * 2),
+      top: y + (isTop ? height * 1.5 : -height * 2.6),
     };
   }, [buttonPosition]);
 
@@ -50,8 +57,9 @@ const TipKitPopOverView: React.FC<
         layout={LinearTransition}
         style={styles.buttonContainer}
         onLayout={(event) => {
-          const { x, y, width, height } = event.nativeEvent.layout;
-          setButtonPosition({ x, y, width, height });
+          event.target.measure((x, y, width, height, pageX, pageY) => {
+            setButtonPosition({ x, y, width, height, pageX, pageY });
+          });
         }}
       >
         {children}

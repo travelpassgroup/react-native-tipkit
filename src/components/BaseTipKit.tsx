@@ -5,12 +5,12 @@ import {
   StyleSheet,
   Text,
   View,
-  type LayoutRectangle,
   type TextStyle,
   type ViewStyle,
 } from 'react-native';
 import CloseIcon from './CloseIcon';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import type { LayoutMeasure } from '../TipKitPopOverView/TipKitPopOverView';
 
 export interface BaseTipKitProps {
   type?: 'inline' | 'popover';
@@ -30,7 +30,7 @@ export interface BaseTipKitProps {
   actionButtonOnPress?: () => void;
   // Styling Props
   tipContainer?: ViewStyle;
-  buttonPosition?: LayoutRectangle;
+  buttonPosition?: LayoutMeasure;
   // Animation Props
   enteringAnimation?: any;
   exitingAnimation?: any;
@@ -64,8 +64,8 @@ const BaseTipKit: FC<BaseTipKitProps> = ({
     if (!buttonPosition) {
       return {};
     }
-    const { y, x, width } = buttonPosition;
-    const isTop = y < screenHeight / 2;
+    const { x, width, pageY } = buttonPosition;
+    const isTop = pageY < screenHeight / 2;
 
     return {
       top: isTop ? -8 : undefined,
