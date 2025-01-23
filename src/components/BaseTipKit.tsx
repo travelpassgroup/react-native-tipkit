@@ -65,12 +65,12 @@ const BaseTipKit: FC<BaseTipKitProps> = ({
     if (!targetPosition) {
       return {};
     }
-    const { pageY, pageX } = targetPosition;
+    const { pageY, pageX, width } = targetPosition;
     const isTop = pageY < screenHeight / 2;
 
     return {
       top: isTop ? -8 : undefined,
-      left: pageX - 6,
+      left: pageX + width / 2 - ARROW_WIDTH - 4,
       bottom: isTop ? undefined : -7,
       backgroundColor: tipContainerStyle?.backgroundColor,
     };

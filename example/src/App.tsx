@@ -47,7 +47,7 @@ export default function App() {
               style={styles.bottomButton}
               onPress={() => console.log('Cool feature!')}
             >
-              <Text style={styles.buttonText}>+</Text>
+              <Text style={styles.buttonText}>+hello world+</Text>
             </Pressable>
           </View>
         </Animated.View>
@@ -114,8 +114,8 @@ const styles = StyleSheet.create({
   bottomButton: {
     backgroundColor: '#66D210',
     borderRadius: 100,
-    width: 50,
     height: 50,
+    width: 200,
     alignItems: 'center',
     justifyContent: 'center',
     left: 50,
