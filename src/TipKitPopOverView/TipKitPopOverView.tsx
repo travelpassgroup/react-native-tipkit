@@ -1,15 +1,9 @@
-import React, {
-  Fragment,
-  useCallback,
-  useMemo,
-  useState,
-  type PropsWithChildren,
-} from 'react';
+import React, { useEffect, useState } from 'react';
 import BaseTipKit, { type BaseTipKitProps } from '../components/BaseTipKit';
 import {
   Dimensions,
   StyleSheet,
-  type LayoutChangeEvent,
+  View,
   type LayoutRectangle,
 } from 'react-native';
 import Animated, {
@@ -26,15 +20,16 @@ export interface LayoutMeasure extends LayoutRectangle {
 interface TipKitPopOverViewProps
   extends Omit<
     BaseTipKitProps,
-    'type' | 'visible' | 'onDismiss' | 'buttonPosition'
-  > {}
+    'type' | 'visible' | 'onDismiss' | 'targetPosition'
+  > {
+  targetRef: React.RefObject<View>;
+}
 
-const { height: screenHeight } = Dimensions.get('screen');
-
-const TipKitPopOverView: React.FC<
-  PropsWithChildren<TipKitPopOverViewProps>
-> = ({ children, ...rest }) => {
-  const [visible, setVisible] = useState(true);
+const TipKitPopOverView: React.FC<TipKitPopOverViewProps> = ({
+  targetRef,
+  ...rest
+}) => {
+  const [visible, setVisible] = useState(false);
   const [targetPosition, setTargetPosition] = useState<LayoutMeasure>({
     x: 0,
     y: 0,
@@ -43,68 +38,67 @@ const TipKitPopOverView: React.FC<
     pageX: 0,
     pageY: 0,
   });
-
-  const popoverStyle = useMemo(() => {
-    const { y, height, pageY } = targetPosition;
-    const isTop = pageY < screenHeight / 2;
-
-    return {
-      top: y + (isTop ? height * 1.5 : -height * 2.6),
-    };
-  }, [targetPosition]);
+  const { height: screenHeight } = Dimensions.get('screen');
 
   const onDismiss = () => {
     setVisible(false);
   };
 
-  const handleOnLayout = useCallback((event: LayoutChangeEvent) => {
-    event.target.measure((x, y, width, height, pageX, pageY) => {
-      setTargetPosition({ x, y, width, height, pageX, pageY });
-    });
-  }, []);
+  useEffect(() => {
+    const measureTarget = () => {
+      targetRef?.current?.measure((x, y, width, height, pageX, pageY) => {
+        setTargetPosition({ x, y, width, height, pageX, pageY });
+        setVisible(true);
+      });
+    };
+    const timeout = setTimeout(measureTarget, 100);
+    return () => clearTimeout(timeout);
+  }, [targetRef]);
+
+  useEffect(() => {
+    if (targetRef.current == null) {
+      throw new Error('Target ref is not defined');
+    }
+  }, [targetRef]);
+
+  const popoverStyle = () => {
+    const { height, pageY } = targetPosition;
+    const isTargetOnTop = pageY < screenHeight / 2;
+
+    return {
+      top: pageY + (isTargetOnTop ? height * 1.5 : -height * 2.5),
+    };
+  };
 
   return (
-    <Fragment>
+    visible && (
       <Animated.View
         layout={LinearTransition}
-        style={styles.buttonContainer}
-        onLayout={handleOnLayout}
+        style={[styles.popoverContainer, popoverStyle()]}
       >
-        {children}
+        <BaseTipKit
+          type="popover"
+          visible={visible}
+          onDismiss={onDismiss}
+          targetPosition={targetPosition}
+          enteringAnimation={ZoomIn.delay(500)
+            .springify()
+            .damping(15)
+            .stiffness(200)}
+          exitingAnimation={ZoomOut}
+          {...rest}
+        />
       </Animated.View>
-      {visible && (
-        <Animated.View
-          layout={LinearTransition}
-          style={[styles.popoverContainer, popoverStyle]}
-        >
-          <BaseTipKit
-            type="popover"
-            visible={true}
-            onDismiss={onDismiss}
-            targetPosition={targetPosition}
-            enteringAnimation={ZoomIn.delay(500)
-              .springify()
-              .damping(15)
-              .stiffness(200)}
-            exitingAnimation={ZoomOut}
-            {...rest}
-          />
-        </Animated.View>
-      )}
-    </Fragment>
+    )
   );
 };
 
 const styles = StyleSheet.create({
   popoverContainer: {
     position: 'absolute',
-    alignSelf: 'center',
     zIndex: 9999,
-    width: '100%',
-  },
-  buttonContainer: {
-    zIndex: 9998,
-    alignSelf: 'flex-start',
+    right: 16,
+    left: 16,
   },
 });
 

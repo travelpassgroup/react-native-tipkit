@@ -1,4 +1,4 @@
-import React, { useMemo, type FC } from 'react';
+import React, { type FC } from 'react';
 import {
   Dimensions,
   Pressable,
@@ -56,24 +56,25 @@ const BaseTipKit: FC<BaseTipKitProps> = ({
   exitingAnimation = FadeOut,
 }) => {
   const { height: screenHeight } = Dimensions.get('screen');
-  const onXPress = () => {
+
+  const onPressClose = () => {
     onDismiss?.();
   };
 
-  const arrowStyle = useMemo(() => {
+  const arrowStyle = () => {
     if (!targetPosition) {
       return {};
     }
-    const { x, width, pageY } = targetPosition;
+    const { pageY, pageX } = targetPosition;
     const isTop = pageY < screenHeight / 2;
 
     return {
       top: isTop ? -8 : undefined,
-      left: x + width / 2 - ARROW_WIDTH / 2,
+      left: pageX - 6, // understand why 6
       bottom: isTop ? undefined : -7,
       backgroundColor: tipContainer?.backgroundColor,
     };
-  }, [tipContainer?.backgroundColor, targetPosition, screenHeight]);
+  };
 
   return (
     visible && (
@@ -83,7 +84,7 @@ const BaseTipKit: FC<BaseTipKitProps> = ({
         exiting={exitingAnimation}
       >
         {type === 'popover' && (
-          <View style={[styles.arrow, { ...arrowStyle }]} />
+          <View style={[styles.arrow, { ...arrowStyle() }]} />
         )}
 
         <View style={[styles.container, tipContainer]}>
@@ -91,7 +92,7 @@ const BaseTipKit: FC<BaseTipKitProps> = ({
           <View style={[styles.wrapper]}>
             <View style={styles.header}>
               <Text style={[styles.title, titleStyle]}>{title}</Text>
-              <Pressable onPress={onXPress}>
+              <Pressable onPress={onPressClose}>
                 <CloseIcon fill="#77848a" />
               </Pressable>
             </View>
