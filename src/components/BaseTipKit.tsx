@@ -13,7 +13,7 @@ import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import type { LayoutMeasure } from '../TipKitPopOverView/TipKitPopOverView';
 
 export interface BaseTipKitProps {
-  type?: 'inline' | 'popover';
+  type: 'inline' | 'popover';
   // General Logic Props
   visible?: boolean;
   onDismiss?: () => void;
@@ -29,7 +29,7 @@ export interface BaseTipKitProps {
   actionButtonStyle?: TextStyle;
   actionButtonOnPress?: () => void;
   // Styling Props
-  tipContainer?: ViewStyle;
+  tipContainerStyle?: ViewStyle;
   targetPosition?: LayoutMeasure;
   // Animation Props
   enteringAnimation?: any;
@@ -50,7 +50,7 @@ const BaseTipKit: FC<BaseTipKitProps> = ({
   actionButtonTitle,
   actionButtonStyle,
   actionButtonOnPress,
-  tipContainer,
+  tipContainerStyle,
   targetPosition,
   enteringAnimation = FadeIn,
   exitingAnimation = FadeOut,
@@ -70,9 +70,9 @@ const BaseTipKit: FC<BaseTipKitProps> = ({
 
     return {
       top: isTop ? -8 : undefined,
-      left: pageX - 6, // understand why 6
+      left: pageX - 6,
       bottom: isTop ? undefined : -7,
-      backgroundColor: tipContainer?.backgroundColor,
+      backgroundColor: tipContainerStyle?.backgroundColor,
     };
   };
 
@@ -87,7 +87,7 @@ const BaseTipKit: FC<BaseTipKitProps> = ({
           <View style={[styles.arrow, { ...arrowStyle() }]} />
         )}
 
-        <View style={[styles.container, tipContainer]}>
+        <View style={[styles.container, tipContainerStyle]}>
           {icon && icon}
           <View style={[styles.wrapper]}>
             <View style={styles.header}>

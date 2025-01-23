@@ -38,7 +38,7 @@ export default function App() {
           <TipKitInlineView
             title="Set favorites"
             description="Tap and hold a color to add it to your favorites"
-            tipContainer={styles.inline}
+            tipContainerStyle={styles.inline}
           />
 
           <View style={styles.buttonContainer}>
@@ -56,7 +56,7 @@ export default function App() {
         targetRef={topPlusButtonRef}
         title="Add New Color"
         description="Tap here to add a new color to the list"
-        tipContainer={styles.tipContainer}
+        tipContainerStyle={styles.tipContainer}
         icon={<DonutIcon height={40} width={40} />}
         actionButtonOnPress={onActionButtonPress}
       />
@@ -64,7 +64,7 @@ export default function App() {
         targetRef={bottomPlusButtonRef}
         title="Add New Color"
         description="Tap here to add a new color to the list"
-        tipContainer={styles.tipContainer}
+        tipContainerStyle={styles.tipContainer}
         icon={<DonutIcon height={40} width={40} fill={'#66b2b2'} />}
         actionButtonOnPress={onActionButtonPress}
         actionButtonTitle="Learn more"
