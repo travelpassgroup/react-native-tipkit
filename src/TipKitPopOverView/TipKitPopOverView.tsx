@@ -1,114 +1,104 @@
-import React, {
-  Fragment,
-  useMemo,
-  useRef,
-  useState,
-  type JSXElementConstructor,
-  type ReactElement,
-} from 'react';
+import React, { useEffect, useState } from 'react';
 import BaseTipKit, { type BaseTipKitProps } from '../components/BaseTipKit';
-import { Button, StyleSheet, View, type ButtonProps } from 'react-native';
+import {
+  Dimensions,
+  StyleSheet,
+  View,
+  type LayoutRectangle,
+} from 'react-native';
+import Animated, {
+  LinearTransition,
+  ZoomIn,
+  ZoomOut,
+} from 'react-native-reanimated';
 
-export type TipKitPopOverArrowDirection =
-  | 'top-start'
-  | 'top'
-  | 'top-end'
-  | 'bottom-start'
-  | 'bottom'
-  | 'bottom-end';
+export interface LayoutMeasure extends LayoutRectangle {
+  pageX: number;
+  pageY: number;
+}
 
-interface TipKitPopOverViewProps extends BaseTipKitProps {
-  popoverButtonArrowDirection?: TipKitPopOverArrowDirection;
-  popoverButton?: ReactElement<any, string | JSXElementConstructor<any>>;
-  popoverButtonOnPress?: () => void;
-  popoverButtonTitle?: string;
-  popoverButtonProps?: ButtonProps;
+interface TipKitPopOverViewProps
+  extends Omit<
+    BaseTipKitProps,
+    'type' | 'visible' | 'onDismiss' | 'targetPosition'
+  > {
+  targetRef: React.RefObject<View>;
 }
 
 const TipKitPopOverView: React.FC<TipKitPopOverViewProps> = ({
-  popoverButton,
-  popoverButtonOnPress,
-  popoverButtonProps,
-  popoverButtonArrowDirection = 'bottom',
+  targetRef,
   ...rest
 }) => {
-  const buttonRef = useRef<View>(null);
-
   const [visible, setVisible] = useState(false);
-  const [buttonPosition, setButtonPosition] = useState({
+  const [targetPosition, setTargetPosition] = useState<LayoutMeasure>({
     x: 0,
     y: 0,
     width: 0,
     height: 0,
+    pageX: 0,
+    pageY: 0,
   });
-
-  const measureButtonPosition = () => {
-    buttonRef.current?.measure((_fx, _fy, width, height, px, py) => {
-      setButtonPosition({ x: px, y: py, width, height });
-    });
-  };
-
-  const popoverStyle = useMemo(() => {
-    const { y, x, height } = buttonPosition;
-    const isTop = popoverButtonArrowDirection?.includes('top');
-
-    return {
-      top: y + (isTop ? -height * 2.5 : height * 1.5),
-      left: x,
-    };
-  }, [buttonPosition, popoverButtonArrowDirection]);
+  const { height: screenHeight } = Dimensions.get('screen');
 
   const onDismiss = () => {
     setVisible(false);
   };
 
-  const handlePopoverButtonPress = () => {
-    measureButtonPosition();
-    popoverButtonOnPress?.();
-    setVisible(true);
+  useEffect(() => {
+    const measureTarget = () => {
+      targetRef?.current?.measure((x, y, width, height, pageX, pageY) => {
+        setTargetPosition({ x, y, width, height, pageX, pageY });
+        setVisible(true);
+      });
+    };
+    const timeout = setTimeout(measureTarget, 100);
+    return () => clearTimeout(timeout);
+  }, [targetRef]);
+
+  useEffect(() => {
+    if (targetRef.current == null) {
+      throw new Error('Target ref is not defined');
+    }
+  }, [targetRef]);
+
+  const popoverStyle = () => {
+    const { height, pageY } = targetPosition;
+    const isTargetOnTop = pageY < screenHeight / 2;
+
+    return {
+      top: pageY + (isTargetOnTop ? height * 1.5 : -height * 2.5),
+    };
   };
 
   return (
-    <Fragment>
-      <View ref={buttonRef} style={styles.buttonContainer}>
-        {popoverButton ? (
-          React.cloneElement(popoverButton, {
-            onPress: () => {
-              handlePopoverButtonPress();
-              popoverButton.props.onPress?.();
-            },
-          })
-        ) : (
-          <Button
-            onPress={handlePopoverButtonPress}
-            title={popoverButtonProps?.title || ''}
-            color="#158481"
-            {...popoverButtonProps}
-          />
-        )}
-      </View>
-      {visible && (
-        <View style={[styles.popoverContainer, popoverStyle]}>
-          <BaseTipKit
-            visible={true}
-            onDismiss={onDismiss}
-            popoverButtonArrowDirection={popoverButtonArrowDirection}
-            {...rest}
-          />
-        </View>
-      )}
-    </Fragment>
+    visible && (
+      <Animated.View
+        layout={LinearTransition}
+        style={[styles.popoverContainer, popoverStyle()]}
+      >
+        <BaseTipKit
+          type="popover"
+          visible={visible}
+          onDismiss={onDismiss}
+          targetPosition={targetPosition}
+          enteringAnimation={ZoomIn.delay(500)
+            .springify()
+            .damping(15)
+            .stiffness(200)}
+          exitingAnimation={ZoomOut}
+          {...rest}
+        />
+      </Animated.View>
+    )
   );
 };
 
 const styles = StyleSheet.create({
-  buttonContainer: {
-    zIndex: 9998,
-  },
   popoverContainer: {
     position: 'absolute',
     zIndex: 9999,
-    width: '100%',
+    right: 16,
+    left: 16,
   },
 });
 

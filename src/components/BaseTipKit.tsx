@@ -1,99 +1,98 @@
-import React, { useMemo, type FC } from 'react';
+import React, { type FC } from 'react';
 import {
+  Dimensions,
   Pressable,
   StyleSheet,
   Text,
   View,
-  type FlexAlignType,
   type TextStyle,
   type ViewStyle,
 } from 'react-native';
 import CloseIcon from './CloseIcon';
-import type { TipKitPopOverArrowDirection } from '../TipKitPopOverView/TipKitPopOverView';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import type { LayoutMeasure } from '../TipKitPopOverView/TipKitPopOverView';
 
 export interface BaseTipKitProps {
+  type: 'inline' | 'popover';
   // General Logic Props
   visible?: boolean;
   onDismiss?: () => void;
-
   // Content Props
   title?: string;
   titleStyle?: TextStyle;
   description?: string;
   descriptionStyle?: TextStyle;
-  popoverButtonArrowDirection?: TipKitPopOverArrowDirection;
-
   // Icon Props
-  leftIcon?: React.ReactNode;
-
-  // Button Props
+  icon?: React.ReactNode;
+  // Action Button Props
   actionButtonTitle?: string;
   actionButtonStyle?: TextStyle;
   actionButtonOnPress?: () => void;
-
   // Styling Props
-  tipContainer?: ViewStyle;
+  tipContainerStyle?: ViewStyle;
+  targetPosition?: LayoutMeasure;
+  // Animation Props
+  enteringAnimation?: any;
+  exitingAnimation?: any;
 }
 
+const ARROW_WIDTH = 26;
+
 const BaseTipKit: FC<BaseTipKitProps> = ({
+  type,
   visible,
   onDismiss,
   title,
   titleStyle,
   description,
   descriptionStyle,
-  leftIcon,
+  icon,
   actionButtonTitle,
   actionButtonStyle,
   actionButtonOnPress,
-  tipContainer,
-  popoverButtonArrowDirection,
+  tipContainerStyle,
+  targetPosition,
+  enteringAnimation = FadeIn,
+  exitingAnimation = FadeOut,
 }) => {
-  const onXPress = () => {
+  const { height: screenHeight } = Dimensions.get('screen');
+
+  const onPressClose = () => {
     onDismiss?.();
   };
 
-  const arrowStyle = useMemo(() => {
-    const isTop = popoverButtonArrowDirection?.includes('top');
-    const isStart = popoverButtonArrowDirection?.includes('start');
-    const alignSelf = (() => {
-      switch (popoverButtonArrowDirection) {
-        case 'top-start':
-        case 'bottom-start':
-          return 'flex-start';
-        case 'top-end':
-        case 'bottom-end':
-          return 'flex-end';
-        case 'top':
-        case 'bottom':
-          return 'center';
-        default:
-          return 'center';
-      }
-    })();
+  const arrowStyle = () => {
+    if (!targetPosition) {
+      return {};
+    }
+    const { pageY, pageX, width } = targetPosition;
+    const isTop = pageY < screenHeight / 2;
 
     return {
-      top: isTop ? undefined : -7,
-      bottom: isTop ? -7 : undefined,
-      left: isStart ? 6 : undefined,
-      right: isStart ? undefined : 6,
-      alignSelf: alignSelf as FlexAlignType,
-      backgroundColor: tipContainer?.backgroundColor,
+      top: isTop ? -8 : undefined,
+      left: pageX + width / 2 - ARROW_WIDTH - 4,
+      bottom: isTop ? undefined : -7,
+      backgroundColor: tipContainerStyle?.backgroundColor,
     };
-  }, [popoverButtonArrowDirection, tipContainer?.backgroundColor]);
+  };
 
   return (
     visible && (
-      <View>
-        {popoverButtonArrowDirection && (
-          <View style={[styles.arrow, { ...arrowStyle }]} />
+      <Animated.View
+        key={`tip-${title}`}
+        entering={enteringAnimation}
+        exiting={exitingAnimation}
+      >
+        {type === 'popover' && (
+          <View style={[styles.arrow, { ...arrowStyle() }]} />
         )}
-        <View style={[styles.container, tipContainer]}>
-          {leftIcon && leftIcon}
+
+        <View style={[styles.container, tipContainerStyle]}>
+          {icon && icon}
           <View style={[styles.wrapper]}>
             <View style={styles.header}>
               <Text style={[styles.title, titleStyle]}>{title}</Text>
-              <Pressable onPress={onXPress}>
+              <Pressable onPress={onPressClose}>
                 <CloseIcon fill="#77848a" />
               </Pressable>
             </View>
@@ -101,7 +100,7 @@ const BaseTipKit: FC<BaseTipKitProps> = ({
               {description}
             </Text>
 
-            {actionButtonOnPress && actionButtonTitle && (
+            {actionButtonOnPress && !!actionButtonTitle && (
               <Pressable onPress={actionButtonOnPress}>
                 <Text style={[styles.actionButton, actionButtonStyle]}>
                   {actionButtonTitle}
@@ -110,7 +109,7 @@ const BaseTipKit: FC<BaseTipKitProps> = ({
             )}
           </View>
         </View>
-      </View>
+      </Animated.View>
     )
   );
 };
@@ -151,12 +150,10 @@ const styles = StyleSheet.create({
     color: '#007AFF',
   },
   arrow: {
-    height: 20,
-    width: 20,
+    width: ARROW_WIDTH,
+    height: ARROW_WIDTH,
     position: 'absolute',
-    top: -7,
-    borderBottomLeftRadius: 4,
-    borderTopRightRadius: 4,
+    borderRadius: 4,
     transform: [{ rotate: '45deg' }],
   },
 });
