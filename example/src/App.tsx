@@ -9,15 +9,16 @@ import {
 import { TipKitInlineView, TipKitPopOverView } from 'react-native-tipkit';
 import DonutIcon from './DonutIcon';
 import Animated, { LinearTransition } from 'react-native-reanimated';
-import { useCallback, useRef } from 'react';
+import { useRef } from 'react';
+import { Palette, Plus, SwatchBook } from 'lucide-react-native';
 
 export default function App() {
   const topPlusButtonRef = useRef(null);
   const bottomPlusButtonRef = useRef(null);
 
-  const onActionButtonPress = useCallback(() => {
+  const onActionButtonPress = () => {
     console.log('Action button pressed');
-  }, []);
+  };
 
   return (
     <>
@@ -31,7 +32,7 @@ export default function App() {
             style={styles.topButton}
             onPress={() => console.log('Cool feature!')}
           >
-            <Text style={styles.buttonText}>+</Text>
+            <Plus size={24} color="#636366" />
           </Pressable>
         </View>
         <Animated.View layout={LinearTransition} style={styles.container}>
@@ -41,13 +42,16 @@ export default function App() {
             tipContainerStyle={styles.inline}
           />
 
-          <View style={styles.buttonContainer}>
+          <View style={styles.bottomButtonContainer}>
             <Pressable
               ref={bottomPlusButtonRef}
               style={styles.bottomButton}
               onPress={() => console.log('Cool feature!')}
             >
-              <Text style={styles.buttonText}>+hello world+</Text>
+              <View style={styles.bottomButtomTextWrapper}>
+                <Palette size={24} color="#636366" />
+                <Text style={styles.buttonText}>Create</Text>
+              </View>
             </Pressable>
           </View>
         </Animated.View>
@@ -55,17 +59,17 @@ export default function App() {
       <TipKitPopOverView
         targetRef={topPlusButtonRef}
         title="Add New Color"
-        description="Tap here to add a new color to the list"
+        description="Tap here to add a new color to the palette"
         tipContainerStyle={styles.tipContainer}
         icon={<DonutIcon height={40} width={40} />}
         actionButtonOnPress={onActionButtonPress}
       />
       <TipKitPopOverView
         targetRef={bottomPlusButtonRef}
-        title="Add New Color"
-        description="Tap here to add a new color to the list"
+        title="Create New Palette"
+        description="Tap here to create a new palette of colors"
         tipContainerStyle={styles.tipContainer}
-        icon={<DonutIcon height={40} width={40} fill={'#66b2b2'} />}
+        icon={<SwatchBook size={36} color="#636366" />}
         actionButtonOnPress={onActionButtonPress}
         actionButtonTitle="Learn more"
       />
@@ -86,7 +90,7 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 24,
     paddingTop: 16,
@@ -104,29 +108,41 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   topButton: {
-    backgroundColor: '#66D210',
+    backgroundColor: '#F0F6F7',
     borderRadius: 100,
     width: 50,
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#eee',
+    boxShadow: 'rgba(149, 157, 165, 0.2) 0px 2px 12px',
   },
   bottomButton: {
-    backgroundColor: '#66D210',
+    backgroundColor: '#F0F6F7',
     borderRadius: 100,
     height: 50,
     width: 200,
+    alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
-    left: 50,
+    borderWidth: 1,
+    borderColor: '#eee',
+    boxShadow: 'rgba(149, 157, 165, 0.2) 0px 2px 12px',
   },
   buttonText: {
-    color: '#333',
+    color: '#636366',
+    fontWeight: 'bold',
   },
-  buttonContainer: {
+  bottomButtonContainer: {
+    bottom: 24,
     width: '100%',
     alignSelf: 'center',
     position: 'absolute',
-    bottom: 24,
+  },
+  bottomButtomTextWrapper: {
+    gap: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });
