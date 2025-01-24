@@ -9686,6 +9686,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lucide-react-native@npm:^0.474.0":
+  version: 0.474.0
+  resolution: "lucide-react-native@npm:0.474.0"
+  peerDependencies:
+    react: ^16.5.1 || ^17.0.0 || ^18.0.0
+    react-native: "*"
+    react-native-svg: ^12.0.0 || ^13.0.0 || ^14.0.0 || ^15.0.0
+  checksum: 31af20c8701fb06e337d70fea2f7c5eb602d8afca87f3e2e8a0d338be20534126d17cc7b6be1aa18d0da674d8ef65d7252ea312092b9422cf38adfceaa561e04
+  languageName: node
+  linkType: hard
+
 "macos-release@npm:^3.1.0":
   version: 3.3.0
   resolution: "macos-release@npm:3.3.0"
@@ -11933,6 +11944,7 @@ __metadata:
     "@expo/metro-runtime": ~4.0.0
     expo: ~52.0.25
     expo-status-bar: ~2.0.1
+    lucide-react-native: ^0.474.0
     react: 18.3.1
     react-dom: 18.3.1
     react-native: 0.76.6
