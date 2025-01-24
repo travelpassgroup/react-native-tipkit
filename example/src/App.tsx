@@ -10,7 +10,7 @@ import { TipKitInlineView, TipKitPopOverView } from 'react-native-tipkit';
 import DonutIcon from './DonutIcon';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { useRef } from 'react';
-import { Palette, Plus } from 'lucide-react-native';
+import { Palette, Plus, SwatchBook } from 'lucide-react-native';
 
 export default function App() {
   const topPlusButtonRef = useRef(null);
@@ -59,17 +59,17 @@ export default function App() {
       <TipKitPopOverView
         targetRef={topPlusButtonRef}
         title="Add New Color"
-        description="Tap here to add a new color to the list"
+        description="Tap here to add a new color to the palette"
         tipContainerStyle={styles.tipContainer}
         icon={<DonutIcon height={40} width={40} />}
         actionButtonOnPress={onActionButtonPress}
       />
       <TipKitPopOverView
         targetRef={bottomPlusButtonRef}
-        title="Add New Color"
-        description="Tap here to add a new color to the list"
+        title="Create New Palette"
+        description="Tap here to create a new palette of colors"
         tipContainerStyle={styles.tipContainer}
-        icon={<DonutIcon height={40} width={40} fill={'#66b2b2'} />}
+        icon={<SwatchBook size={36} color="#636366" />}
         actionButtonOnPress={onActionButtonPress}
         actionButtonTitle="Learn more"
       />
