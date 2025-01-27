@@ -4,7 +4,7 @@ import {
   type FC,
   type PropsWithChildren,
 } from 'react';
-import { storage } from '../services/mmkv';
+// import { storage } from '../services/mmkv';
 
 export type TipKitOptions = {
   maxDisplayCount: number;
@@ -40,19 +40,19 @@ export const TipKitProvider: FC<PropsWithChildren> = ({ children }) => {
   const registerTip = (id: string, tipKitOptions: TipKitOptions) => {
     console.log('registerTip', id);
     console.log('registerTip', tipKitOptions);
-    storage.set(
-      id,
-      JSON.stringify({
-        id,
-        shouldDisplay: true,
-        options: tipKitOptions,
-        rule: {
-          ruleName: {
-            eventCount: 0,
-          },
-        },
-      })
-    );
+    // storage.set(
+    //   id,
+    //   JSON.stringify({
+    //     id,
+    //     shouldDisplay: true,
+    //     options: tipKitOptions,
+    //     rule: {
+    //       ruleName: {
+    //         eventCount: 0,
+    //       },
+    //     },
+    //   })
+    // );
     // register the tip
     // setOptions and update storage
   };
