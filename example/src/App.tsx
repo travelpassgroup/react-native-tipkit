@@ -6,11 +6,19 @@ import {
   SafeAreaView,
   Platform,
 } from 'react-native';
-import { TipKitInlineView, TipKitPopOverView } from 'react-native-tipkit';
+import {
+  TipKitInlineView,
+  TipKitPopOverView,
+  TipKitProvider,
+} from 'react-native-tipkit';
 import DonutIcon from './DonutIcon';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { useRef } from 'react';
 import { Palette, Plus, SwatchBook } from 'lucide-react-native';
+
+const TIP_KIT_OPTIONS = {
+  maxDisplayCount: 2,
+};
 
 export default function App() {
   const topPlusButtonRef = useRef(null);
@@ -21,7 +29,7 @@ export default function App() {
   };
 
   return (
-    <>
+    <TipKitProvider>
       <SafeAreaView style={styles.safeAreaContainer}>
         <View style={styles.titleContainer}>
           <Animated.Text layout={LinearTransition} style={styles.title}>
@@ -37,9 +45,11 @@ export default function App() {
         </View>
         <Animated.View layout={LinearTransition} style={styles.container}>
           <TipKitInlineView
+            id="set-favorites"
             title="Set favorites"
             description="Tap and hold a color to add it to your favorites"
             tipContainerStyle={styles.inline}
+            options={TIP_KIT_OPTIONS}
           />
 
           <View style={styles.bottomButtonContainer}>
@@ -57,14 +67,17 @@ export default function App() {
         </Animated.View>
       </SafeAreaView>
       <TipKitPopOverView
+        id="add-new-color"
         targetRef={topPlusButtonRef}
         title="Add New Color"
         description="Tap here to add a new color to the palette"
         tipContainerStyle={styles.tipContainer}
         icon={<DonutIcon height={40} width={40} />}
         actionButtonOnPress={onActionButtonPress}
+        options={TIP_KIT_OPTIONS}
       />
       <TipKitPopOverView
+        id="create-new-palette"
         targetRef={bottomPlusButtonRef}
         title="Create New Palette"
         description="Tap here to create a new palette of colors"
@@ -72,8 +85,9 @@ export default function App() {
         icon={<SwatchBook size={36} color="#636366" />}
         actionButtonOnPress={onActionButtonPress}
         actionButtonTitle="Learn more"
+        options={TIP_KIT_OPTIONS}
       />
-    </>
+    </TipKitProvider>
   );
 }
 

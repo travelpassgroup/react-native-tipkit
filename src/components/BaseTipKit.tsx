@@ -1,4 +1,4 @@
-import React, { type FC } from 'react';
+import React, { useEffect, type FC } from 'react';
 import {
   Dimensions,
   Pressable,
@@ -11,12 +11,15 @@ import {
 import CloseIcon from './CloseIcon';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import type { LayoutMeasure } from '../TipKitPopOverView/TipKitPopOverView';
+import { useTipKit, type TipKitOptions } from '../context/TipKitContext';
 
 export interface BaseTipKitProps {
   type: 'inline' | 'popover';
   // General Logic Props
+  id: string;
   visible?: boolean;
   onDismiss?: () => void;
+  options: TipKitOptions;
   // Content Props
   title?: string;
   titleStyle?: TextStyle;
@@ -39,6 +42,7 @@ export interface BaseTipKitProps {
 const ARROW_WIDTH = 26;
 
 const BaseTipKit: FC<BaseTipKitProps> = ({
+  id,
   type,
   visible,
   onDismiss,
@@ -54,7 +58,9 @@ const BaseTipKit: FC<BaseTipKitProps> = ({
   targetPosition,
   enteringAnimation = FadeIn,
   exitingAnimation = FadeOut,
+  options,
 }) => {
+  const { registerTip } = useTipKit();
   const { height: screenHeight } = Dimensions.get('screen');
 
   const onPressClose = () => {
@@ -75,6 +81,10 @@ const BaseTipKit: FC<BaseTipKitProps> = ({
       backgroundColor: tipContainerStyle?.backgroundColor,
     };
   };
+
+  useEffect(() => {
+    registerTip(id, options);
+  }, [id, options, registerTip]);
 
   return (
     visible && (
