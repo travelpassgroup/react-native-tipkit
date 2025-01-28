@@ -9,17 +9,9 @@ interface TipKitInlineViewProps
   > {}
 
 const TipKitInlineView: React.FC<TipKitInlineViewProps> = ({ ...rest }) => {
-  const [visible, setVisible] = React.useState(true);
-
-  const onDismiss = () => {
-    setVisible(false);
-  };
-
   return (
     <BaseTipKit
       type="inline"
-      visible={visible}
-      onDismiss={onDismiss}
       enteringAnimation={StretchInY}
       exitingAnimation={StretchOutY}
       {...rest}

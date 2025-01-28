@@ -80,6 +80,7 @@
     "react": "18.3.1",
     "react-native": "0.76.6",
     "react-native-builder-bob": "^0.32.0",
+    "react-native-mmkv": "^3.2.0",
     "react-native-reanimated": "^3.16.7",
     "react-native-svg": "^15.11.1",
     "release-it": "^17.10.0",
@@ -91,6 +92,7 @@
   "peerDependencies": {
     "react": "*",
     "react-native": "*",
+    "react-native-mmkv": "*",
     "react-native-reanimated": "*",
     "react-native-svg": "*"
   },
