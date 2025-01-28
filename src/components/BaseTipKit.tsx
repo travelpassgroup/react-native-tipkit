@@ -11,14 +11,17 @@ import {
 import CloseIcon from './CloseIcon';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import type { LayoutMeasure } from '../TipKitPopOverView/TipKitPopOverView';
-import { useTipKit, type TipKitOptions } from '../context/TipKitContext';
+import {
+  useTipKit,
+  type TipKit,
+  type TipKitOptions,
+} from '../context/TipKitContext';
+import { useMMKVObject } from 'react-native-mmkv';
 
 export interface BaseTipKitProps {
   type: 'inline' | 'popover';
   // General Logic Props
   id: string;
-  visible?: boolean;
-  onDismiss?: () => void;
   options: TipKitOptions;
   // Content Props
   title?: string;
@@ -44,8 +47,6 @@ const ARROW_WIDTH = 26;
 const BaseTipKit: FC<BaseTipKitProps> = ({
   id,
   type,
-  visible,
-  onDismiss,
   title,
   titleStyle,
   description,
@@ -60,11 +61,14 @@ const BaseTipKit: FC<BaseTipKitProps> = ({
   exitingAnimation = FadeOut,
   options,
 }) => {
-  const { registerTip } = useTipKit();
+  const { registerTip, increaseEventCount, closeTip } = useTipKit();
+  const [tip] = useMMKVObject<TipKit>(id);
   const { height: screenHeight } = Dimensions.get('screen');
 
   const onPressClose = () => {
-    onDismiss?.();
+    if (tip) {
+      closeTip(id);
+    }
   };
 
   const arrowStyle = () => {
@@ -86,8 +90,14 @@ const BaseTipKit: FC<BaseTipKitProps> = ({
     registerTip(id, options);
   }, [id, options, registerTip]);
 
+  useEffect(() => {
+    if (tip?.shouldDisplay) {
+      increaseEventCount(id);
+    }
+  }, [id, increaseEventCount, tip?.shouldDisplay]);
+
   return (
-    visible && (
+    tip?.shouldDisplay && (
       <Animated.View
         key={`tip-${title}`}
         entering={enteringAnimation}

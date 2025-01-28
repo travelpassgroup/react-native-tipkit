@@ -16,10 +16,6 @@ import Animated, { LinearTransition } from 'react-native-reanimated';
 import { useRef } from 'react';
 import { Palette, Plus, SwatchBook } from 'lucide-react-native';
 
-const TIP_KIT_OPTIONS = {
-  maxDisplayCount: 2,
-};
-
 export default function App() {
   const topPlusButtonRef = useRef(null);
   const bottomPlusButtonRef = useRef(null);
@@ -49,7 +45,9 @@ export default function App() {
             title="Set favorites"
             description="Tap and hold a color to add it to your favorites"
             tipContainerStyle={styles.inline}
-            options={TIP_KIT_OPTIONS}
+            options={{
+              maxDisplayCount: 3,
+            }}
           />
 
           <View style={styles.bottomButtonContainer}>
@@ -74,7 +72,9 @@ export default function App() {
         tipContainerStyle={styles.tipContainer}
         icon={<DonutIcon height={40} width={40} />}
         actionButtonOnPress={onActionButtonPress}
-        options={TIP_KIT_OPTIONS}
+        options={{
+          maxDisplayCount: 2,
+        }}
       />
       <TipKitPopOverView
         id="create-new-palette"
@@ -85,7 +85,9 @@ export default function App() {
         icon={<SwatchBook size={36} color="#636366" />}
         actionButtonOnPress={onActionButtonPress}
         actionButtonTitle="Learn more"
-        options={TIP_KIT_OPTIONS}
+        options={{
+          maxDisplayCount: 4,
+        }}
       />
     </TipKitProvider>
   );

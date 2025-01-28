@@ -29,7 +29,6 @@ const TipKitPopOverView: React.FC<TipKitPopOverViewProps> = ({
   targetRef,
   ...rest
 }) => {
-  const [visible, setVisible] = useState(false);
   const [targetPosition, setTargetPosition] = useState<LayoutMeasure>({
     x: 0,
     y: 0,
@@ -40,15 +39,10 @@ const TipKitPopOverView: React.FC<TipKitPopOverViewProps> = ({
   });
   const { height: screenHeight } = Dimensions.get('screen');
 
-  const onDismiss = () => {
-    setVisible(false);
-  };
-
   useEffect(() => {
     const measureTarget = () => {
       targetRef?.current?.measure((x, y, width, height, pageX, pageY) => {
         setTargetPosition({ x, y, width, height, pageX, pageY });
-        setVisible(true);
       });
     };
     const timeout = setTimeout(measureTarget, 100);
@@ -71,25 +65,21 @@ const TipKitPopOverView: React.FC<TipKitPopOverViewProps> = ({
   };
 
   return (
-    visible && (
-      <Animated.View
-        layout={LinearTransition}
-        style={[styles.popoverContainer, popoverStyle()]}
-      >
-        <BaseTipKit
-          type="popover"
-          visible={visible}
-          onDismiss={onDismiss}
-          targetPosition={targetPosition}
-          enteringAnimation={ZoomIn.delay(500)
-            .springify()
-            .damping(15)
-            .stiffness(200)}
-          exitingAnimation={ZoomOut}
-          {...rest}
-        />
-      </Animated.View>
-    )
+    <Animated.View
+      layout={LinearTransition}
+      style={[styles.popoverContainer, popoverStyle()]}
+    >
+      <BaseTipKit
+        type="popover"
+        targetPosition={targetPosition}
+        enteringAnimation={ZoomIn.delay(500)
+          .springify()
+          .damping(15)
+          .stiffness(200)}
+        exitingAnimation={ZoomOut}
+        {...rest}
+      />
+    </Animated.View>
   );
 };
 
