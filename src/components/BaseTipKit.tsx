@@ -12,7 +12,8 @@ import CloseIcon from './CloseIcon';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import type { LayoutMeasure } from '../TipKitPopOverView/TipKitPopOverView';
 import {
-  InvalidationReason,
+  TipInvalidationReason,
+  TipStatus,
   useTipKit,
   type TipKit,
   type TipKitOptions,
@@ -63,13 +64,17 @@ const BaseTipKit: FC<BaseTipKitProps> = ({
   exitingAnimation = FadeOut,
   options,
 }) => {
-  const { registerTip, increaseEventCount, invalidateTip } = useTipKit();
+  const { registerTip, increaseMaxDisplayCount, invalidateTip } = useTipKit();
   const [tip] = useMMKVObject<TipKit>(id, storage);
   const { height: screenHeight } = Dimensions.get('screen');
+  const canShowTip = tip?.shouldDisplay && tip?.status === TipStatus.AVAILABLE;
 
   const onPressClose = () => {
     if (tip) {
-      invalidateTip({ id, invalidationReason: InvalidationReason.TIP_CLOSED });
+      invalidateTip({
+        id,
+        invalidationReason: TipInvalidationReason.TIP_CLOSED,
+      });
     }
   };
 
@@ -93,13 +98,13 @@ const BaseTipKit: FC<BaseTipKitProps> = ({
   }, [id, options, registerTip]);
 
   useEffect(() => {
-    if (tip?.shouldDisplay) {
-      increaseEventCount(id);
+    if (canShowTip) {
+      increaseMaxDisplayCount(id);
     }
-  }, [id, increaseEventCount, tip?.shouldDisplay]);
+  }, [id, increaseMaxDisplayCount, canShowTip]);
 
   return (
-    tip?.shouldDisplay && (
+    canShowTip && (
       <Animated.View
         key={`tip-${title}`}
         entering={enteringAnimation}
