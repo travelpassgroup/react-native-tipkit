@@ -12,11 +12,13 @@ import CloseIcon from './CloseIcon';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import type { LayoutMeasure } from '../TipKitPopOverView/TipKitPopOverView';
 import {
+  InvalidationReason,
   useTipKit,
   type TipKit,
   type TipKitOptions,
 } from '../context/TipKitContext';
 import { useMMKVObject } from 'react-native-mmkv';
+import { storage } from '../services/mmkv';
 
 export interface BaseTipKitProps {
   type: 'inline' | 'popover';
@@ -61,13 +63,13 @@ const BaseTipKit: FC<BaseTipKitProps> = ({
   exitingAnimation = FadeOut,
   options,
 }) => {
-  const { registerTip, increaseEventCount, closeTip } = useTipKit();
-  const [tip] = useMMKVObject<TipKit>(id);
+  const { registerTip, increaseEventCount, invalidateTip } = useTipKit();
+  const [tip] = useMMKVObject<TipKit>(id, storage);
   const { height: screenHeight } = Dimensions.get('screen');
 
   const onPressClose = () => {
     if (tip) {
-      closeTip(id);
+      invalidateTip({ id, invalidationReason: InvalidationReason.TIP_CLOSED });
     }
   };
 
@@ -95,6 +97,7 @@ const BaseTipKit: FC<BaseTipKitProps> = ({
       increaseEventCount(id);
     }
   }, [id, increaseEventCount, tip?.shouldDisplay]);
+  console.log(tip);
 
   return (
     tip?.shouldDisplay && (

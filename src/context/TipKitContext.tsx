@@ -1,6 +1,7 @@
 import {
   createContext,
   useContext,
+  useEffect,
   type FC,
   type PropsWithChildren,
 } from 'react';
@@ -40,28 +41,49 @@ export type TipKit = {
   rule: TipKitRule;
 };
 
+type InvalidateTipProps = {
+  id: string;
+  invalidationReason: InvalidationReason;
+};
+
 type TipKitContextType = {
-  invalidateTip: (id: string) => void;
+  invalidateTip: ({ id, invalidationReason }: InvalidateTipProps) => void;
   registerTip: (id: string, tipKitOptions: TipKitOptions) => void;
   increaseEventCount: (id: string) => void;
   resetDatastore: () => void;
-  closeTip: (id: string) => void;
+  clearDataStorage: () => void;
 };
 
 export const TipKitContext = createContext<TipKitContextType | null>(null);
 
 export const TipKitProvider: FC<PropsWithChildren> = ({ children }) => {
-  const invalidateTip = (id: string) => {
+  const invalidateTip = ({ id, invalidationReason }: InvalidateTipProps) => {
     const tip = storage.getString(id);
     if (tip) {
       const parsedTip = JSON.parse(tip);
       const updatedTip = {
         ...parsedTip,
         shouldDisplay: false,
+        status: Status.INVALIDATED,
+        invalidationReason,
+        updated_at: new Date().toISOString(),
       };
       storage.set(id, JSON.stringify(updatedTip));
     }
   };
+
+  const clearDataStorage = () => {
+    storage.clearAll();
+  };
+
+  const getAllTips = () => {
+    const keys = storage.getAllKeys();
+    console.log(keys);
+  };
+
+  useEffect(() => {
+    getAllTips();
+  }, []);
 
   const registerTip = (id: string, tipKitOptions: TipKitOptions) => {
     const hasTipRegistered = storage.contains(id);
@@ -101,7 +123,10 @@ export const TipKitProvider: FC<PropsWithChildren> = ({ children }) => {
       };
 
       if (!shouldDisplay) {
-        invalidateTip(id);
+        invalidateTip({
+          id,
+          invalidationReason: InvalidationReason.DISPLAY_COUNT_EXCEEDED,
+        });
       }
 
       storage.set(id, JSON.stringify(updatedTip));
@@ -113,22 +138,6 @@ export const TipKitProvider: FC<PropsWithChildren> = ({ children }) => {
     // TODO: resetDatastore (reset all tips status again)
   };
 
-  const closeTip = (id: string) => {
-    const tip = storage.getString(id);
-    if (tip) {
-      const parsedTip = JSON.parse(tip);
-      const updatedTip = {
-        ...parsedTip,
-        shouldDisplay: false,
-        status: Status.INVALIDATED,
-        invalidationReason: InvalidationReason.TIP_CLOSED,
-        updated_at: new Date().toISOString(),
-      };
-
-      storage.set(id, JSON.stringify(updatedTip));
-    }
-  };
-
   return (
     <TipKitContext.Provider
       value={{
@@ -136,7 +145,7 @@ export const TipKitProvider: FC<PropsWithChildren> = ({ children }) => {
         invalidateTip,
         increaseEventCount,
         resetDatastore,
-        closeTip,
+        clearDataStorage,
       }}
     >
       {children}
