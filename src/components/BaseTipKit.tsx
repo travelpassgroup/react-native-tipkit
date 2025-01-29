@@ -97,7 +97,6 @@ const BaseTipKit: FC<BaseTipKitProps> = ({
       increaseEventCount(id);
     }
   }, [id, increaseEventCount, tip?.shouldDisplay]);
-  console.log(tip);
 
   return (
     tip?.shouldDisplay && (
