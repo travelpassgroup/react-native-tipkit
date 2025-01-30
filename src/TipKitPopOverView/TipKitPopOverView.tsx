@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import BaseTipKit, { type BaseTipKitProps } from '../components/BaseTipKit';
 import {
   Dimensions,
@@ -39,14 +39,10 @@ const TipKitPopOverView: React.FC<TipKitPopOverViewProps> = ({
   });
   const { height: screenHeight } = Dimensions.get('screen');
 
-  useEffect(() => {
-    const measureTarget = () => {
-      targetRef?.current?.measure((x, y, width, height, pageX, pageY) => {
-        setTargetPosition({ x, y, width, height, pageX, pageY });
-      });
-    };
-    const timeout = setTimeout(measureTarget, 100);
-    return () => clearTimeout(timeout);
+  const measureTarget = useCallback(() => {
+    targetRef?.current?.measure((x, y, width, height, pageX, pageY) => {
+      setTargetPosition({ x, y, width, height, pageX, pageY });
+    });
   }, [targetRef]);
 
   useEffect(() => {
@@ -66,6 +62,7 @@ const TipKitPopOverView: React.FC<TipKitPopOverViewProps> = ({
 
   return (
     <Animated.View
+      onLayout={() => measureTarget()}
       layout={LinearTransition}
       style={[styles.popoverContainer, popoverStyle()]}
     >

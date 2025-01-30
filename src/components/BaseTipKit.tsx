@@ -12,11 +12,15 @@ import CloseIcon from './CloseIcon';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import type { LayoutMeasure } from '../TipKitPopOverView/TipKitPopOverView';
 import {
+  TipInvalidationReason,
+  TipStatus,
   useTipKit,
   type TipKit,
   type TipKitOptions,
+  type TipKitRule,
 } from '../context/TipKitContext';
 import { useMMKVObject } from 'react-native-mmkv';
+import { storage } from '../services/mmkv';
 
 export interface BaseTipKitProps {
   type: 'inline' | 'popover';
@@ -40,6 +44,8 @@ export interface BaseTipKitProps {
   // Animation Props
   enteringAnimation?: any;
   exitingAnimation?: any;
+  // Rule Props
+  rule?: TipKitRule;
 }
 
 const ARROW_WIDTH = 26;
@@ -60,14 +66,19 @@ const BaseTipKit: FC<BaseTipKitProps> = ({
   enteringAnimation = FadeIn,
   exitingAnimation = FadeOut,
   options,
+  rule,
 }) => {
-  const { registerTip, increaseEventCount, closeTip } = useTipKit();
-  const [tip] = useMMKVObject<TipKit>(id);
+  const { registerTip, increaseMaxDisplayCount, invalidateTip } = useTipKit();
+  const [tip] = useMMKVObject<TipKit>(id, storage);
   const { height: screenHeight } = Dimensions.get('screen');
+  const canShowTip = tip?.shouldDisplay && tip?.status === TipStatus.AVAILABLE;
 
   const onPressClose = () => {
     if (tip) {
-      closeTip(id);
+      invalidateTip({
+        id,
+        invalidationReason: TipInvalidationReason.TIP_CLOSED,
+      });
     }
   };
 
@@ -87,17 +98,17 @@ const BaseTipKit: FC<BaseTipKitProps> = ({
   };
 
   useEffect(() => {
-    registerTip(id, options);
-  }, [id, options, registerTip]);
+    registerTip(id, options, rule);
+  }, [id, options, registerTip, rule]);
 
   useEffect(() => {
-    if (tip?.shouldDisplay) {
-      increaseEventCount(id);
+    if (canShowTip) {
+      increaseMaxDisplayCount(id);
     }
-  }, [id, increaseEventCount, tip?.shouldDisplay]);
+  }, [id, increaseMaxDisplayCount, canShowTip]);
 
   return (
-    tip?.shouldDisplay && (
+    canShowTip && (
       <Animated.View
         key={`tip-${title}`}
         entering={enteringAnimation}

@@ -1,19 +1,20 @@
 import {
   createContext,
+  useCallback,
   useContext,
   type FC,
   type PropsWithChildren,
 } from 'react';
 import { storage } from '../services/mmkv';
 
-export enum InvalidationReason {
+export enum TipInvalidationReason {
   ACTION_PERFORMED = 'actionPerformed', // The user performed the action that the tip describes.
   DISPLAY_COUNT_EXCEEDED = 'displayCountExceeded', // The tip exceeded its maximum display count.
   DISPLAY_DURATION_EXCEEDED = 'displayDurationExceeded', // The tip exceeded its max display duration.
   TIP_CLOSED = 'tipClosed', // The user explicitly closed the tip view while it was displaying.
 }
 
-export enum Status {
+export enum TipStatus {
   AVAILABLE = 'available', // The tip is eligible for display.
   INVALIDATED = 'invalidated', // The tip is no longer valid.
   PENDING = 'pending', // The tip is not eligible for display.
@@ -24,119 +25,209 @@ export type TipKitOptions = {
 };
 
 export type TipKitRule = {
-  ruleName: {
-    eventCount: number;
-  };
+  ruleName: string;
+  evaluate: () => boolean;
 };
 
 export type TipKit = {
   id: string;
   shouldDisplay: boolean;
-  status?: Status;
-  invalidationReason?: InvalidationReason; // Only if status is INVALIDATED
+  status?: TipStatus;
+  invalidationReason?: TipInvalidationReason; // Only if status is INVALIDATED
   created_at: string;
   updated_at: string;
   options: TipKitOptions;
-  rule: TipKitRule;
+  rule?: TipKitRule;
+};
+
+type InvalidateTipProps = {
+  id: string;
+  invalidationReason: TipInvalidationReason;
 };
 
 type TipKitContextType = {
-  invalidateTip: (id: string) => void;
-  registerTip: (id: string, tipKitOptions: TipKitOptions) => void;
-  increaseEventCount: (id: string) => void;
+  invalidateTip: ({ id, invalidationReason }: InvalidateTipProps) => void;
+  registerTip: (
+    id: string,
+    tipKitOptions: TipKitOptions,
+    rule?: TipKitRule
+  ) => void;
+  increaseMaxDisplayCount: (id: string) => void;
+  getAllTipsIds: () => string[];
   resetDatastore: () => void;
-  closeTip: (id: string) => void;
+  cleanDatastore: () => void;
 };
 
 export const TipKitContext = createContext<TipKitContextType | null>(null);
 
 export const TipKitProvider: FC<PropsWithChildren> = ({ children }) => {
-  const invalidateTip = (id: string) => {
-    const tip = storage.getString(id);
-    if (tip) {
-      const parsedTip = JSON.parse(tip);
-      const updatedTip = {
-        ...parsedTip,
-        shouldDisplay: false,
-      };
-      storage.set(id, JSON.stringify(updatedTip));
-    }
-  };
+  const cleanDatastore = useCallback(() => {
+    storage.clearAll();
+  }, []);
 
-  const registerTip = (id: string, tipKitOptions: TipKitOptions) => {
-    const hasTipRegistered = storage.contains(id);
-    if (!hasTipRegistered) {
-      storage.set(
-        id,
-        JSON.stringify({
+  const getAllTipsIds = useCallback(() => {
+    return storage.getAllKeys();
+  }, []);
+
+  const invalidateTip = useCallback(
+    ({ id, invalidationReason }: InvalidateTipProps) => {
+      const tip = storage.getString(id);
+      if (tip) {
+        const parsedTip = JSON.parse(tip);
+        const updatedTip = {
+          ...parsedTip,
+          shouldDisplay: false,
+          status: TipStatus.INVALIDATED,
+          invalidationReason,
+          updated_at: new Date().toISOString(),
+        };
+        storage.set(id, JSON.stringify(updatedTip));
+      }
+    },
+    []
+  );
+
+  const changeTipStatus = useCallback(
+    ({ id, status }: { id: string; status: TipStatus }) => {
+      const tip = storage.getString(id);
+      if (tip) {
+        const parsedTip = JSON.parse(tip);
+        const updatedTip = {
+          ...parsedTip,
+          status,
+          updated_at: new Date().toISOString(),
+        };
+        storage.set(id, JSON.stringify(updatedTip));
+      }
+    },
+    []
+  );
+
+  const evaluateRule = useCallback(
+    (id: string, rule: TipKitRule) => {
+      const tip = storage.getString(id);
+      if (!tip) return;
+
+      const parsedTip = JSON.parse(tip);
+      if (!parsedTip.rule.ruleName) return;
+
+      if (parsedTip.status === TipStatus.INVALIDATED) return;
+
+      try {
+        const isRuleValid = rule.evaluate();
+        if (!isRuleValid) {
+          changeTipStatus({
+            id,
+            status: TipStatus.PENDING,
+          });
+        } else {
+          changeTipStatus({
+            id,
+            status: TipStatus.AVAILABLE,
+          });
+        }
+      } catch (error) {
+        console.error(`Error evaluating rule for tip ${id}:`, error);
+        return;
+      }
+    },
+    [changeTipStatus]
+  );
+
+  const registerTip = useCallback(
+    (id: string, tipKitOptions: TipKitOptions, rule?: TipKitRule) => {
+      const hasTipRegistered = storage.contains(id);
+      if (!hasTipRegistered) {
+        storage.set(
           id,
-          created_at: new Date().toISOString(),
-          shouldDisplay: true,
-          options: tipKitOptions,
-          rule: {
-            ruleName: {
-              eventCount: 0,
+          JSON.stringify({
+            id,
+            created_at: new Date().toISOString(),
+            shouldDisplay: true,
+            options: {
+              maxDisplayCount: {
+                value: tipKitOptions.maxDisplayCount,
+                count: 0,
+              },
+            },
+            rule: {
+              ruleName: rule?.ruleName,
+            },
+          })
+        );
+      }
+      if (rule) {
+        evaluateRule(id, rule);
+      }
+    },
+    [evaluateRule]
+  );
+
+  const increaseMaxDisplayCount = useCallback(
+    (id: string) => {
+      const tip = storage.getString(id);
+      if (tip) {
+        const parsedTip = JSON.parse(tip);
+        const eventCount = parsedTip.options.maxDisplayCount.count + 1;
+        const shouldDisplay =
+          eventCount <= parsedTip.options.maxDisplayCount.value;
+        const updatedTip = {
+          ...parsedTip,
+          shouldDisplay,
+          options: {
+            maxDisplayCount: {
+              value: parsedTip.options.maxDisplayCount.value,
+              count: eventCount,
             },
           },
-        })
-      );
-    }
-  };
+          updated_at: new Date().toISOString(),
+        };
 
-  const increaseEventCount = (id: string) => {
-    const tip = storage.getString(id);
-    if (tip) {
-      const parsedTip = JSON.parse(tip);
-      const eventCount = parsedTip.rule.ruleName.eventCount + 1;
-      const shouldDisplay = eventCount <= parsedTip.options.maxDisplayCount;
-      const updatedTip = {
-        ...parsedTip,
-        shouldDisplay,
-        rule: {
-          ruleName: {
-            eventCount,
-          },
-        },
-        updated_at: new Date().toISOString(),
-      };
+        if (!shouldDisplay) {
+          invalidateTip({
+            id,
+            invalidationReason: TipInvalidationReason.DISPLAY_COUNT_EXCEEDED,
+          });
+        }
 
-      if (!shouldDisplay) {
-        invalidateTip(id);
+        storage.set(id, JSON.stringify(updatedTip));
       }
+    },
+    [invalidateTip]
+  );
 
-      storage.set(id, JSON.stringify(updatedTip));
-    }
-  };
-
-  const resetDatastore = () => {
-    // TODO: Implement this function
-    // TODO: resetDatastore (reset all tips status again)
-  };
-
-  const closeTip = (id: string) => {
-    const tip = storage.getString(id);
-    if (tip) {
-      const parsedTip = JSON.parse(tip);
-      const updatedTip = {
-        ...parsedTip,
-        shouldDisplay: false,
-        status: Status.INVALIDATED,
-        invalidationReason: InvalidationReason.TIP_CLOSED,
-        updated_at: new Date().toISOString(),
-      };
-
-      storage.set(id, JSON.stringify(updatedTip));
-    }
-  };
+  const resetDatastore = useCallback(() => {
+    storage.getAllKeys().map((key) => {
+      const tip = storage.getString(key);
+      if (tip) {
+        const parsedTip = JSON.parse(tip);
+        const updatedTip = {
+          ...parsedTip,
+          shouldDisplay: true,
+          status: TipStatus.AVAILABLE,
+          invalidationReason: undefined,
+          options: {
+            maxDisplayCount: {
+              value: parsedTip.options.maxDisplayCount.value,
+              count: 0,
+            },
+          },
+          updated_at: new Date().toISOString(),
+        };
+        storage.set(key, JSON.stringify(updatedTip));
+      }
+    });
+  }, []);
 
   return (
     <TipKitContext.Provider
       value={{
         registerTip,
         invalidateTip,
-        increaseEventCount,
+        increaseMaxDisplayCount,
+        getAllTipsIds,
         resetDatastore,
-        closeTip,
+        cleanDatastore,
       }}
     >
       {children}
@@ -144,4 +235,10 @@ export const TipKitProvider: FC<PropsWithChildren> = ({ children }) => {
   );
 };
 
-export const useTipKit = () => useContext(TipKitContext) as TipKitContextType;
+export const useTipKit = () => {
+  const context = useContext(TipKitContext) as TipKitContextType;
+  if (!context) {
+    throw new Error('useTipKit must be used within a TipKitProvider');
+  }
+  return context;
+};
