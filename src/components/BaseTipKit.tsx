@@ -17,6 +17,7 @@ import {
   useTipKit,
   type TipKit,
   type TipKitOptions,
+  type TipKitRule,
 } from '../context/TipKitContext';
 import { useMMKVObject } from 'react-native-mmkv';
 import { storage } from '../services/mmkv';
@@ -43,6 +44,8 @@ export interface BaseTipKitProps {
   // Animation Props
   enteringAnimation?: any;
   exitingAnimation?: any;
+  // Rule Props
+  rule?: TipKitRule;
 }
 
 const ARROW_WIDTH = 26;
@@ -63,11 +66,23 @@ const BaseTipKit: FC<BaseTipKitProps> = ({
   enteringAnimation = FadeIn,
   exitingAnimation = FadeOut,
   options,
+  rule,
 }) => {
-  const { registerTip, increaseMaxDisplayCount, invalidateTip } = useTipKit();
+  const {
+    registerTip,
+    increaseMaxDisplayCount,
+    invalidateTip,
+    resetDatastore,
+  } = useTipKit();
   const [tip] = useMMKVObject<TipKit>(id, storage);
   const { height: screenHeight } = Dimensions.get('screen');
   const canShowTip = tip?.shouldDisplay && tip?.status === TipStatus.AVAILABLE;
+
+  console.log({ tip });
+
+  useEffect(() => {
+    resetDatastore();
+  }, [resetDatastore]);
 
   const onPressClose = () => {
     if (tip) {
@@ -94,8 +109,8 @@ const BaseTipKit: FC<BaseTipKitProps> = ({
   };
 
   useEffect(() => {
-    registerTip(id, options);
-  }, [id, options, registerTip]);
+    registerTip(id, options, rule);
+  }, [id, options, registerTip, rule]);
 
   useEffect(() => {
     if (canShowTip) {

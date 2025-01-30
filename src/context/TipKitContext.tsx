@@ -25,9 +25,8 @@ export type TipKitOptions = {
 };
 
 export type TipKitRule = {
-  ruleName: {
-    eventCount: number;
-  };
+  ruleName: string;
+  evaluate: () => boolean;
 };
 
 export type TipKit = {
@@ -38,7 +37,7 @@ export type TipKit = {
   created_at: string;
   updated_at: string;
   options: TipKitOptions;
-  rule: TipKitRule;
+  rule?: TipKitRule;
 };
 
 type InvalidateTipProps = {
@@ -48,7 +47,11 @@ type InvalidateTipProps = {
 
 type TipKitContextType = {
   invalidateTip: ({ id, invalidationReason }: InvalidateTipProps) => void;
-  registerTip: (id: string, tipKitOptions: TipKitOptions) => void;
+  registerTip: (
+    id: string,
+    tipKitOptions: TipKitOptions,
+    rule?: TipKitRule
+  ) => void;
   increaseMaxDisplayCount: (id: string) => void;
   getAllTipsIds: () => string[];
   resetDatastore: () => void;
@@ -66,34 +69,6 @@ export const TipKitProvider: FC<PropsWithChildren> = ({ children }) => {
     return storage.getAllKeys();
   }, []);
 
-  const registerTip = useCallback(
-    (id: string, tipKitOptions: TipKitOptions) => {
-      const hasTipRegistered = storage.contains(id);
-      if (!hasTipRegistered) {
-        storage.set(
-          id,
-          JSON.stringify({
-            id,
-            created_at: new Date().toISOString(),
-            shouldDisplay: true,
-            options: {
-              maxDisplayCount: {
-                value: tipKitOptions.maxDisplayCount,
-                count: 0,
-              },
-            },
-            rule: {
-              ruleName: {
-                eventCount: 0,
-              },
-            },
-          })
-        );
-      }
-    },
-    []
-  );
-
   const invalidateTip = useCallback(
     ({ id, invalidationReason }: InvalidateTipProps) => {
       const tip = storage.getString(id);
@@ -110,6 +85,82 @@ export const TipKitProvider: FC<PropsWithChildren> = ({ children }) => {
       }
     },
     []
+  );
+
+  const changeTipStatus = useCallback(
+    ({ id, status }: { id: string; status: TipStatus }) => {
+      const tip = storage.getString(id);
+      if (tip) {
+        const parsedTip = JSON.parse(tip);
+        const updatedTip = {
+          ...parsedTip,
+          status,
+          updated_at: new Date().toISOString(),
+        };
+        storage.set(id, JSON.stringify(updatedTip));
+      }
+    },
+    []
+  );
+
+  const evaluateRule = useCallback(
+    (id: string, rule: TipKitRule) => {
+      const tip = storage.getString(id);
+      if (!tip) return;
+
+      const parsedTip = JSON.parse(tip);
+      if (!parsedTip.rule.ruleName) return;
+
+      if (parsedTip.status === TipStatus.INVALIDATED) return;
+
+      try {
+        const isRuleValid = rule.evaluate();
+        if (!isRuleValid) {
+          changeTipStatus({
+            id,
+            status: TipStatus.PENDING,
+          });
+        } else {
+          changeTipStatus({
+            id,
+            status: TipStatus.AVAILABLE,
+          });
+        }
+      } catch (error) {
+        console.error(`Error evaluating rule for tip ${id}:`, error);
+        return;
+      }
+    },
+    [changeTipStatus]
+  );
+
+  const registerTip = useCallback(
+    (id: string, tipKitOptions: TipKitOptions, rule?: TipKitRule) => {
+      const hasTipRegistered = storage.contains(id);
+      if (!hasTipRegistered) {
+        storage.set(
+          id,
+          JSON.stringify({
+            id,
+            created_at: new Date().toISOString(),
+            shouldDisplay: true,
+            options: {
+              maxDisplayCount: {
+                value: tipKitOptions.maxDisplayCount,
+                count: 0,
+              },
+            },
+            rule: {
+              ruleName: rule?.ruleName,
+            },
+          })
+        );
+      }
+      if (rule) {
+        evaluateRule(id, rule);
+      }
+    },
+    [evaluateRule]
   );
 
   const increaseMaxDisplayCount = useCallback(
@@ -155,9 +206,10 @@ export const TipKitProvider: FC<PropsWithChildren> = ({ children }) => {
           shouldDisplay: true,
           status: TipStatus.AVAILABLE,
           invalidationReason: undefined,
-          rule: {
-            ruleName: {
-              eventCount: 0,
+          options: {
+            maxDisplayCount: {
+              value: parsedTip.options.maxDisplayCount.value,
+              count: 0,
             },
           },
           updated_at: new Date().toISOString(),

@@ -1,7 +1,6 @@
 import {
   StyleSheet,
   Pressable,
-  Text,
   View,
   SafeAreaView,
   Platform,
@@ -14,11 +13,11 @@ import {
 import DonutIcon from './DonutIcon';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { useRef } from 'react';
-import { Palette, Plus, SwatchBook } from 'lucide-react-native';
+import { Plus } from 'lucide-react-native';
+import CreateButton from './CreateButton';
 
 export default function App() {
   const topPlusButtonRef = useRef(null);
-  const bottomPlusButtonRef = useRef(null);
 
   const onActionButtonPress = () => {
     console.log('Action button pressed');
@@ -50,18 +49,7 @@ export default function App() {
             }}
           />
 
-          <View style={styles.bottomButtonContainer}>
-            <Pressable
-              ref={bottomPlusButtonRef}
-              style={styles.bottomButton}
-              onPress={() => console.log('Cool feature!')}
-            >
-              <View style={styles.bottomButtomTextWrapper}>
-                <Palette size={24} color="#636366" />
-                <Text style={styles.buttonText}>Create</Text>
-              </View>
-            </Pressable>
-          </View>
+          <CreateButton />
         </Animated.View>
       </SafeAreaView>
       <TipKitPopOverView
@@ -74,19 +62,6 @@ export default function App() {
         actionButtonOnPress={onActionButtonPress}
         options={{
           maxDisplayCount: 2,
-        }}
-      />
-      <TipKitPopOverView
-        id="create-new-palette"
-        targetRef={bottomPlusButtonRef}
-        title="Create New Palette"
-        description="Tap here to create a new palette of colors"
-        tipContainerStyle={styles.tipContainer}
-        icon={<SwatchBook size={36} color="#636366" />}
-        actionButtonOnPress={onActionButtonPress}
-        actionButtonTitle="Learn more"
-        options={{
-          maxDisplayCount: 4,
         }}
       />
     </TipKitProvider>
@@ -134,31 +109,9 @@ const styles = StyleSheet.create({
     borderColor: '#eee',
     boxShadow: 'rgba(149, 157, 165, 0.2) 0px 2px 12px',
   },
-  bottomButton: {
-    backgroundColor: '#F0F6F7',
-    borderRadius: 100,
-    height: 50,
-    width: 200,
-    alignSelf: 'center',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#eee',
-    boxShadow: 'rgba(149, 157, 165, 0.2) 0px 2px 12px',
-  },
+
   buttonText: {
     color: '#636366',
     fontWeight: 'bold',
-  },
-  bottomButtonContainer: {
-    bottom: 24,
-    width: '100%',
-    alignSelf: 'center',
-    position: 'absolute',
-  },
-  bottomButtomTextWrapper: {
-    gap: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
   },
 });
