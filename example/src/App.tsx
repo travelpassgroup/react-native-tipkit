@@ -15,10 +15,11 @@ import DonutIcon from './DonutIcon';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { useRef } from 'react';
 import { Palette, Plus, SwatchBook } from 'lucide-react-native';
-import CreateButton from './CreateButton';
+import CreateButton, { TIP_ID } from './CreateButton';
 
 export default function App() {
   const topPlusButtonRef = useRef(null);
+  const bottomPlusButtonRef = useRef(null);
   const bottomPlusButtonRef2 = useRef(null);
 
   const onActionButtonPress = () => {
@@ -62,10 +63,9 @@ export default function App() {
               </View>
             </Pressable>
           </View>
-
-          <CreateButton />
         </Animated.View>
       </SafeAreaView>
+      <CreateButton tipKitPopOverViewRef={bottomPlusButtonRef} />
       <TipKitPopOverView
         id={'create-new-palette-2'}
         targetRef={bottomPlusButtonRef2}
@@ -96,6 +96,26 @@ export default function App() {
         actionButtonOnPress={onActionButtonPress}
         options={{
           maxDisplayCount: 2,
+        }}
+      />
+      <TipKitPopOverView
+        id={TIP_ID}
+        targetRef={bottomPlusButtonRef}
+        title="Create New Palette"
+        description="Tap here to create a new palette of colors"
+        tipContainerStyle={styles.tipContainer}
+        icon={<SwatchBook size={36} color="#636366" />}
+        actionButtonOnPress={onActionButtonPress}
+        actionButtonTitle="Learn more"
+        options={{
+          maxDisplayCount: 4,
+        }}
+        rule={{
+          ruleName: 'hasNotExistingPalettes',
+          evaluate: () => {
+            const palettes = [];
+            return palettes.length === 0;
+          },
         }}
       />
     </TipKitProvider>

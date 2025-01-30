@@ -1,21 +1,19 @@
-import { Palette, SwatchBook } from 'lucide-react-native';
-import { useRef } from 'react';
+import { Palette } from 'lucide-react-native';
+import { type FC } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { TipKitPopOverView } from 'react-native-tipkit';
 import {
   TipInvalidationReason,
   useTipKit,
 } from '../../src/context/TipKitContext';
 
-const TIP_ID = 'create-new-palette';
+export const TIP_ID = 'create-new-palette';
 
-const CreateButton = () => {
-  const bottomPlusButtonRef = useRef(null);
+type Props = {
+  tipKitPopOverViewRef: React.MutableRefObject<null>;
+};
+
+const CreateButton: FC<Props> = ({ tipKitPopOverViewRef }) => {
   const { invalidateTip } = useTipKit();
-
-  const onActionButtonPress = () => {
-    console.log('Action button pressed');
-  };
 
   const handlePressCreateNewPalette = () => {
     // Handle create new palette
@@ -25,44 +23,19 @@ const CreateButton = () => {
     });
   };
 
-  const getPalettes = () => {
-    return [];
-  };
   return (
-    <>
-      <View style={styles.bottomButtonContainer}>
-        <Pressable
-          ref={bottomPlusButtonRef}
-          style={styles.bottomButton}
-          onPress={handlePressCreateNewPalette}
-        >
-          <View style={styles.bottomButtomTextWrapper}>
-            <Palette size={24} color="#636366" />
-            <Text style={styles.buttonText}>Create</Text>
-          </View>
-        </Pressable>
-      </View>
-      <TipKitPopOverView
-        id={TIP_ID}
-        targetRef={bottomPlusButtonRef}
-        title="Create New Palette"
-        description="Tap here to create a new palette of colors"
-        tipContainerStyle={styles.tipContainer}
-        icon={<SwatchBook size={36} color="#636366" />}
-        actionButtonOnPress={onActionButtonPress}
-        actionButtonTitle="Learn more"
-        options={{
-          maxDisplayCount: 4,
-        }}
-        rule={{
-          ruleName: 'hasNotExistingPalettes',
-          evaluate: () => {
-            const palettes = getPalettes();
-            return palettes.length === 0;
-          },
-        }}
-      />
-    </>
+    <View style={styles.bottomButtonContainer}>
+      <Pressable
+        ref={tipKitPopOverViewRef}
+        style={styles.bottomButton}
+        onPress={handlePressCreateNewPalette}
+      >
+        <View style={styles.bottomButtomTextWrapper}>
+          <Palette size={24} color="#636366" />
+          <Text style={styles.buttonText}>Create</Text>
+        </View>
+      </Pressable>
+    </View>
   );
 };
 

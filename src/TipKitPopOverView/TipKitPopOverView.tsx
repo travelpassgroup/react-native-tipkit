@@ -52,15 +52,8 @@ const TipKitPopOverView: React.FC<TipKitPopOverViewProps> = ({
   }, [targetRef]);
 
   const popoverStyle = () => {
-    const { height, pageY, y } = targetPosition;
+    const { height, pageY } = targetPosition;
     const isTargetOnTop = pageY < screenHeight / 2;
-    console.log({
-      pageY,
-      y,
-      id: rest.id,
-      screenHeight,
-      calc: pageY + (isTargetOnTop ? height * 1.5 : -height * 2.5),
-    });
 
     return {
       top: pageY + (isTargetOnTop ? height * 1.5 : -height * 2.5),
