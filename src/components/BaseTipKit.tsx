@@ -78,8 +78,6 @@ const BaseTipKit: FC<BaseTipKitProps> = ({
   const { height: screenHeight } = Dimensions.get('screen');
   const canShowTip = tip?.shouldDisplay && tip?.status === TipStatus.AVAILABLE;
 
-  console.log({ tip });
-
   useEffect(() => {
     resetDatastore();
   }, [resetDatastore]);

@@ -58,7 +58,6 @@ const CreateButton = () => {
           ruleName: 'hasNotExistingPalettes',
           evaluate: () => {
             const palettes = getPalettes();
-            console.log(palettes.length === 0);
             return palettes.length === 0;
           },
         }}
