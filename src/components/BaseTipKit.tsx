@@ -68,19 +68,10 @@ const BaseTipKit: FC<BaseTipKitProps> = ({
   options,
   rule,
 }) => {
-  const {
-    registerTip,
-    increaseMaxDisplayCount,
-    invalidateTip,
-    resetDatastore,
-  } = useTipKit();
+  const { registerTip, increaseMaxDisplayCount, invalidateTip } = useTipKit();
   const [tip] = useMMKVObject<TipKit>(id, storage);
   const { height: screenHeight } = Dimensions.get('screen');
   const canShowTip = tip?.shouldDisplay && tip?.status === TipStatus.AVAILABLE;
-
-  useEffect(() => {
-    resetDatastore();
-  }, [resetDatastore]);
 
   const onPressClose = () => {
     if (tip) {
