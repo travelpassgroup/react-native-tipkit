@@ -6,8 +6,6 @@ import {
   useTipKit,
 } from '../../src/context/TipKitContext';
 
-export const TIP_ID = 'create-new-palette';
-
 type Props = {
   tipKitPopOverViewRef: React.MutableRefObject<null>;
 };
@@ -18,7 +16,7 @@ const CreateButton: FC<Props> = ({ tipKitPopOverViewRef }) => {
   const handlePressCreateNewPalette = () => {
     // Handle create new palette
     invalidateTip({
-      id: TIP_ID,
+      id: 'create-new-palette',
       invalidationReason: TipInvalidationReason.ACTION_PERFORMED,
     });
   };
@@ -41,7 +39,7 @@ const CreateButton: FC<Props> = ({ tipKitPopOverViewRef }) => {
 
 const styles = StyleSheet.create({
   bottomButtonContainer: {
-    bottom: 24,
+    bottom: 36,
     width: '100%',
     alignSelf: 'center',
     position: 'absolute',
