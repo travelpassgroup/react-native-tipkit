@@ -66,7 +66,7 @@ import { TipKitInlineView } from 'react-native-tipkit';
 
 PopOver tips are great for pointing out specific UI elements:
 
-```jsx
+````jsx
 import { TipKitPopOverView } from 'react-native-tipkit';
 
 const MyComponent = () => {
@@ -95,7 +95,8 @@ const MyComponent = () => {
     </>
   );
 };
-```
+
+> ⚠️ **Important:** Always place `TipKitPopOverView` components at the root level of your app, outside of components like `SafeAreaView`, `ScrollView`, or any other wrapper that might affect positioning. This ensures proper positioning and visibility of the popover tips.
 
 ### 4. Add Conditional Rules
 
@@ -118,7 +119,7 @@ You can control when tips are displayed using rules:
     },
   }}
 />
-```
+````
 
 ## API Reference
 
@@ -171,7 +172,3 @@ See the [contributing guide](CONTRIBUTING.md) to learn how to contribute to the 
 ## License
 
 MIT
-
----
-
-Made with [create-react-native-library](https://github.com/callstack/react-native-builder-bob)
