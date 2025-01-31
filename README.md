@@ -17,9 +17,9 @@ A powerful and flexible React Native library for adding beautiful, customizable 
 ## Installation
 
 ```bash
-npm install react-native-tipkit
+npm install @travelpass/react-native-tipkit
 # or
-yarn add react-native-tipkit
+yarn add @travelpass/react-native-tipkit
 ```
 
 ### Dependencies

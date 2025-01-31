@@ -1,5 +1,5 @@
 {
-  "name": "react-native-tipkit",
+  "name": "@travelpass/react-native-tipkit",
   "version": "0.1.0",
   "description": "Add tips to your app easily",
   "source": "./src/index.tsx",
