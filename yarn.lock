@@ -12403,8 +12403,15 @@ __metadata:
     react-native-mmkv: ^3.2.0
     react-native-reanimated: ^3.16.7
     react-native-svg: ^15.11.1
+    react-native-tipkit: "link:../"
     react-native-web: ~0.19.13
   languageName: unknown
+  linkType: soft
+
+"react-native-tipkit@link:../::locator=react-native-tipkit-example%40workspace%3Aexample":
+  version: 0.0.0-use.local
+  resolution: "react-native-tipkit@link:../::locator=react-native-tipkit-example%40workspace%3Aexample"
+  languageName: node
   linkType: soft
 
 "react-native-tipkit@workspace:.":

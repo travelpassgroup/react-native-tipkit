@@ -1,2 +1,1 @@
-import TipKitInlineView from './TipKitInlineView';
-export { TipKitInlineView };
+export { default as TipKitInlineView } from './TipKitInlineView';
