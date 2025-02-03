@@ -50,7 +50,9 @@
   "keywords": [
     "react-native",
     "ios",
-    "android"
+    "android",
+    "tip",
+    "tipkit"
   ],
   "repository": {
     "type": "git",
