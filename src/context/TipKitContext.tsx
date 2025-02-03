@@ -144,6 +144,7 @@ export const TipKitProvider: FC<PropsWithChildren> = ({ children }) => {
             id,
             created_at: new Date().toISOString(),
             shouldDisplay: true,
+            status: TipStatus.AVAILABLE,
             options: {
               maxDisplayCount: {
                 value: tipKitOptions.maxDisplayCount,
