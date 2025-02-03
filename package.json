@@ -63,7 +63,8 @@
   },
   "homepage": "https://github.com/travelpassgroup/react-native-tipkit#readme",
   "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
   },
   "devDependencies": {
     "@commitlint/config-conventional": "^17.0.2",
