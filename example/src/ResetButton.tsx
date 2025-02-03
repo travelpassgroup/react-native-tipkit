@@ -16,7 +16,7 @@ const ResetButton: FC<Props> = ({ tipKitPopOverViewRef }) => {
         onPress={() => resetDatastore()}
       >
         <View style={styles.bottomButtomTextWrapper}>
-          <RefreshCcw size={24} color="#636366" />
+          <RefreshCcw size={24} color="#FFF" />
         </View>
       </Pressable>
     </View>

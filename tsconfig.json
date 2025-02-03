@@ -2,7 +2,7 @@
   "compilerOptions": {
     "rootDir": ".",
     "paths": {
-      "react-native-tipkit": ["./src/index"]
+      "@travelpass/react-native-tipkit": ["./src/index"]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,

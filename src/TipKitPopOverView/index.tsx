@@ -1,2 +1,1 @@
-import TipKitPopOverView from './TipKitPopOverView';
-export { TipKitPopOverView };
+export { default as TipKitPopOverView } from './TipKitPopOverView';

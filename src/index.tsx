@@ -1,5 +1,4 @@
-import { TipKitProvider } from './context/TipKitContext';
-import { TipKitInlineView } from './TipKitInlineView';
-import { TipKitPopOverView } from './TipKitPopOverView';
+export * from './context/TipKitContext';
 
-export { TipKitInlineView, TipKitPopOverView, TipKitProvider };
+export { TipKitInlineView } from './TipKitInlineView';
+export { TipKitPopOverView } from './TipKitPopOverView';
