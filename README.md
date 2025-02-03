@@ -1,7 +1,5 @@
 ![TipKit Banner](./tipkit-banner.png)
 
-# react-native-tipkit
-
 A powerful and flexible React Native library for adding beautiful, customizable tips and tutorials to your app. Inspired by Apple's TipKit, this library provides an easy way to guide users through your app's features.
 
 ## Features
