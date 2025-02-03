@@ -5,17 +5,17 @@ import {
   SafeAreaView,
   Platform,
 } from 'react-native';
-import {
-  TipKitInlineView,
-  TipKitPopOverView,
-  TipKitProvider,
-} from 'react-native-tipkit';
 import DonutIcon from './DonutIcon';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { useRef } from 'react';
 import { Plus, SwatchBook } from 'lucide-react-native';
 import CreateButton from './CreateButton';
 import ResetButton from './ResetButton';
+import {
+  TipKitInlineView,
+  TipKitPopOverView,
+  TipKitProvider,
+} from '@travelpass/react-native-tipkit';
 
 export default function App() {
   const topPlusButtonRef = useRef(null);

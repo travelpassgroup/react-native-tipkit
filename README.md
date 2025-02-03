@@ -17,9 +17,9 @@ A powerful and flexible React Native library for adding beautiful, customizable 
 ## Installation
 
 ```bash
-npm install react-native-tipkit
+npm install @travelpass/react-native-tipkit
 # or
-yarn add react-native-tipkit
+yarn add @travelpass/react-native-tipkit
 ```
 
 ### Dependencies
@@ -37,7 +37,7 @@ yarn add react-native-mmkv react-native-reanimated
 ### 1. Wrap your app with TipKitProvider
 
 ```jsx
-import { TipKitProvider } from 'react-native-tipkit';
+import { TipKitProvider } from '@travelpass/react-native-tipkit';
 
 export default function App() {
   return <TipKitProvider>{/* Your app content */}</TipKitProvider>;
@@ -49,7 +49,7 @@ export default function App() {
 Inline tips are perfect for providing context within your UI:
 
 ```jsx
-import { TipKitInlineView } from 'react-native-tipkit';
+import { TipKitInlineView } from '@travelpass/react-native-tipkit';
 
 <TipKitInlineView
   id="feature-tip"
@@ -67,7 +67,7 @@ import { TipKitInlineView } from 'react-native-tipkit';
 PopOver tips are great for pointing out specific UI elements:
 
 ```jsx
-import { TipKitPopOverView } from 'react-native-tipkit';
+import { TipKitPopOverView } from '@travelpass/react-native-tipkit';
 
 const MyComponent = () => {
   const buttonRef = useRef(null);
