@@ -48,7 +48,7 @@ export default function App() {
             description="Tap and hold a color to add it to your favorites"
             tipContainerStyle={styles.inline}
             options={{
-              maxDisplayCount: 3,
+              maxDisplayCount: 2,
             }}
           />
         </Animated.View>
@@ -64,7 +64,7 @@ export default function App() {
         icon={<DonutIcon height={40} width={40} />}
         actionButtonOnPress={onActionButtonPress}
         options={{
-          maxDisplayCount: 2,
+          maxDisplayCount: 8,
         }}
       />
       <TipKitPopOverView
