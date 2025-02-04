@@ -113,9 +113,18 @@ const BaseTipKit: FC<BaseTipKitProps> = ({
         key={`tip-${title}`}
         entering={enteringAnimation}
         exiting={exitingAnimation}
+        style={styles.shadowContainer}
       >
         {type === 'popover' && (
-          <View style={[styles.arrow, { ...arrowStyle() }]} />
+          <View
+            style={[
+              styles.arrow,
+              {
+                ...arrowStyle(),
+                backgroundColor: tipContainerStyle?.backgroundColor ?? '#FFF',
+              },
+            ]}
+          />
         )}
 
         <View style={[styles.container, tipContainerStyle]}>
@@ -149,10 +158,18 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 12,
     paddingVertical: 14,
-    borderRadius: 8,
-    backgroundColor: '#f1f4f2',
+    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
     flexDirection: 'row',
     gap: 10,
+  },
+  shadowContainer: {
+    shadowColor: '#00000066',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 8,
+    borderRadius: 12,
   },
   wrapper: {
     flex: 1,
