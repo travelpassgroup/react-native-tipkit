@@ -1,6 +1,6 @@
 {
   "name": "@travelpass/react-native-tipkit",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Add tips to your react native project app easily.",
   "main": "lib/commonjs/index.js",
   "module": "lib/module/index.js",
