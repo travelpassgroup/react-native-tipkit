@@ -2,6 +2,10 @@
 
 A powerful and flexible React Native library for adding beautiful, customizable tips and tutorials to your app. Inspired by Apple's TipKit, this library provides an easy way to guide users through your app's features.
 
+<div align="center">
+  <img src="./tip-kit-example.gif" width="369" height="748" />
+</div>
+
 ## Features
 
 - 🎯 Two types of tips: Inline and PopOver
