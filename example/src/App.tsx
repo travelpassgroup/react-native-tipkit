@@ -50,6 +50,13 @@ export default function App() {
             options={{
               maxDisplayCount: 2,
             }}
+            rule={{
+              ruleName: 'hasNotExistingFavorites',
+              evaluate: () => {
+                const favorites = [];
+                return favorites.length === 0;
+              },
+            }}
           />
         </Animated.View>
         <CreateButton tipKitPopOverViewRef={bottomPlusButtonRef} />
