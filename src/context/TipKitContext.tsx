@@ -136,27 +136,46 @@ export const TipKitProvider: FC<PropsWithChildren> = ({ children }) => {
 
   const registerTip = useCallback(
     (id: string, tipKitOptions: TipKitOptions, rule?: TipKitRule) => {
-      const hasTipRegistered = storage.contains(id);
-      if (!hasTipRegistered) {
-        storage.set(
+      const storedTip = storage.getString(id);
+      let parsedTip = storedTip ? JSON.parse(storedTip) : null;
+      let shouldUpdate = false;
+
+      if (!parsedTip) {
+        parsedTip = {
           id,
-          JSON.stringify({
-            id,
-            created_at: new Date().toISOString(),
-            shouldDisplay: true,
-            status: TipStatus.AVAILABLE,
-            options: {
-              maxDisplayCount: {
-                value: tipKitOptions.maxDisplayCount,
-                count: 0,
-              },
+          created_at: new Date().toISOString(),
+          shouldDisplay: true,
+          status: TipStatus.AVAILABLE,
+          options: {
+            maxDisplayCount: {
+              value: tipKitOptions.maxDisplayCount,
+              count: 0,
             },
-            rule: {
-              ruleName: rule?.ruleName,
-            },
-          })
-        );
+          },
+          rule: rule ? { ruleName: rule.ruleName } : undefined,
+        };
+        shouldUpdate = true;
+      } else {
+        if (rule && parsedTip.rule?.ruleName !== rule.ruleName) {
+          parsedTip.rule = rule;
+          shouldUpdate = true;
+        }
+
+        if (
+          tipKitOptions &&
+          tipKitOptions.maxDisplayCount !==
+            parsedTip.options.maxDisplayCount.value
+        ) {
+          parsedTip.options.maxDisplayCount.value =
+            tipKitOptions.maxDisplayCount;
+          shouldUpdate = true;
+        }
       }
+
+      if (shouldUpdate) {
+        storage.set(id, JSON.stringify(parsedTip));
+      }
+
       if (rule) {
         evaluateRule(id, rule);
       }
